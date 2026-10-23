@@ -1,0 +1,20 @@
+{
+  "name": "classverse-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm --workspace=server run dev",
+    "dev:client": "npm --workspace=client run dev",
+    "build:shared": "npm --workspace=packages/shared run build",
+    "build": "npm run build:shared && npm --workspace=server run build && npm --workspace=client run build",
+    "test": "npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
+}
