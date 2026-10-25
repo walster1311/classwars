@@ -10,6 +10,7 @@ import { Avatar } from './Avatar';
 import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
 import { SmartBoard } from './props/SmartBoard';
+import { ClassroomClock } from './props/ClassroomClock';
 import {
   TeacherDeskMesh,
   DetailedBookshelf,
@@ -208,29 +209,8 @@ export function ClassroomScene() {
           <SmartBoard />
         </group>
 
-        {/* Wall Clock */}
-        <group position={[0, 3.62, -6.85]}>
-          <mesh castShadow rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.44, 0.44, 0.08, 32]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.6} />
-          </mesh>
-          <mesh position={[0, 0, 0.04]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.4, 0.4, 0.02, 32]} />
-            <meshStandardMaterial color="#ffffff" />
-          </mesh>
-          <mesh position={[0, 0.12, 0.06]}>
-            <boxGeometry args={[0.03, 0.24, 0.02]} />
-            <meshBasicMaterial color="#0f172a" />
-          </mesh>
-          <mesh position={[0.08, 0, 0.06]} rotation={[0, 0, -Math.PI / 2]}>
-            <boxGeometry args={[0.02, 0.3, 0.02]} />
-            <meshBasicMaterial color="#0f172a" />
-          </mesh>
-          <mesh position={[0, 0, 0.065]}>
-            <sphereGeometry args={[0.025, 12, 12]} />
-            <meshStandardMaterial color="#ef4444" />
-          </mesh>
-        </group>
+        {/* Real-time Philippine Standard Time (PST/UTC+8) Clock - Raised clear of blackboard */}
+        <ClassroomClock position={[0, 3.85, -6.86]} />
       </group>
 
       {/* 2. BACK UPPER WALL & PROPS (Z = 7.1) */}
