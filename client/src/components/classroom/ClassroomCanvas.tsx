@@ -93,7 +93,7 @@ export function ClassroomCanvas() {
         const distMoved = Math.hypot(newX - lastSentPos.current.x, newZ - lastSentPos.current.z);
         const anim = isMoving ? 'walk' : (player.isHandRaised ? 'raise_hand' : 'idle');
 
-        if (isMoving && (distMoved > 0.05 || now - lastSendTime.current > 60)) {
+        if (isMoving && (distMoved > 0.04 || now - lastSendTime.current > 40)) {
           lastSentPos.current = { x: newX, y: 0, z: newZ, rotY: newRotY };
           lastSendTime.current = now;
 
@@ -127,8 +127,10 @@ export function ClassroomCanvas() {
     <div className="relative w-full h-full select-none bg-slate-950">
       <Canvas
         shadows
-        camera={{ position: [14, 16, 16], fov: 38 }}
-        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+        dpr={[1, 1.5]}
+        performance={{ min: 0.5 }}
+        camera={{ position: [24, 26, 26], fov: 38 }}
+        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', stencil: false }}
       >
         <CameraController />
         <ClassroomScene />

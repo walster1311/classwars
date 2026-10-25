@@ -15,7 +15,7 @@ interface SeatStationProps {
   seat: SeatInfo;
 }
 
-export function SeatStation({ seat }: SeatStationProps) {
+export const SeatStation = React.memo(function SeatStation({ seat }: SeatStationProps) {
   const [hovered, setHovered] = useState(false);
   const occupancy = useClassroomStore((s) => s.seats[seat.id]);
   const mySessionId = useClassroomStore((s) => s.mySessionId);
@@ -98,4 +98,4 @@ export function SeatStation({ seat }: SeatStationProps) {
       )}
     </group>
   );
-}
+});

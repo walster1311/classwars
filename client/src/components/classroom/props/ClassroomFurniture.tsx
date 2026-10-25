@@ -12,61 +12,24 @@ interface StudentChairProps {
   isOccupied: boolean;
 }
 
-export function StudentChairMesh({ color, isHovered, isOccupied }: StudentChairProps) {
+export const StudentChairMesh = React.memo(function StudentChairMesh({
+  color,
+  isHovered,
+  isOccupied
+}: StudentChairProps) {
   return (
     <group position={[0, isHovered ? 0.04 : 0, 0]}>
-      {/* --- Tubular Steel Leg Frame & Glides --- */}
-      {/* Front Left Leg */}
-      <mesh position={[-0.22, 0.22, -0.18]} castShadow>
-        <cylinderGeometry args={[0.016, 0.016, 0.44, 12]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.3} />
-      </mesh>
-      {/* Front Right Leg */}
-      <mesh position={[0.22, 0.22, -0.18]} castShadow>
-        <cylinderGeometry args={[0.016, 0.016, 0.44, 12]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.3} />
-      </mesh>
-      {/* Rear Left Leg */}
-      <mesh position={[-0.22, 0.22, 0.18]} castShadow>
-        <cylinderGeometry args={[0.016, 0.016, 0.44, 12]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.3} />
-      </mesh>
-      {/* Rear Right Leg */}
-      <mesh position={[0.22, 0.22, 0.18]} castShadow>
-        <cylinderGeometry args={[0.016, 0.016, 0.44, 12]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.3} />
-      </mesh>
-
-      {/* Rubber Foot Glide Caps */}
+      {/* Tubular Steel Leg Frame */}
       {[-0.22, 0.22].map((x) =>
         [-0.18, 0.18].map((z) => (
-          <mesh key={`glide-${x}-${z}`} position={[x, 0.012, z]}>
-            <cylinderGeometry args={[0.024, 0.024, 0.024, 12]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.9} />
+          <mesh key={`leg-${x}-${z}`} position={[x, 0.22, z]}>
+            <cylinderGeometry args={[0.016, 0.016, 0.44, 8]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
           </mesh>
         ))
       )}
 
-      {/* Under-Seat Crossbar Supports */}
-      <mesh position={[0, 0.41, -0.18]}>
-        <boxGeometry args={[0.42, 0.02, 0.02]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.7} />
-      </mesh>
-      <mesh position={[0, 0.41, 0.18]}>
-        <boxGeometry args={[0.42, 0.02, 0.02]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.7} />
-      </mesh>
-      <mesh position={[-0.22, 0.41, 0]}>
-        <boxGeometry args={[0.02, 0.02, 0.36]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.7} />
-      </mesh>
-      <mesh position={[0.22, 0.41, 0]}>
-        <boxGeometry args={[0.02, 0.02, 0.36]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.7} />
-      </mesh>
-
-      {/* --- Ergonomic Molded Shell Seat --- */}
-      {/* Waterfall Front Seat Pan */}
+      {/* Ergonomic Molded Shell Seat Pan */}
       <mesh position={[0, 0.44, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.5, 0.045, 0.46]} />
         <meshStandardMaterial
@@ -77,25 +40,17 @@ export function StudentChairMesh({ color, isHovered, isOccupied }: StudentChairP
           emissiveIntensity={isHovered ? 0.3 : 0}
         />
       </mesh>
-      {/* Curved front bevel lip */}
-      <mesh position={[0, 0.425, -0.23]} rotation={[Math.PI / 4, 0, 0]}>
-        <boxGeometry args={[0.49, 0.03, 0.04]} />
-        <meshStandardMaterial color={color} roughness={0.35} />
-      </mesh>
 
-      {/* --- Ergonomic Curved Backrest --- */}
-      {/* Backrest Uprights (Steel tube) */}
-      <mesh position={[-0.18, 0.65, 0.2]} castShadow>
-        <cylinderGeometry args={[0.014, 0.014, 0.42, 12]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.8} />
-      </mesh>
-      <mesh position={[0.18, 0.65, 0.2]} castShadow>
-        <cylinderGeometry args={[0.014, 0.014, 0.42, 12]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.8} />
-      </mesh>
-
-      {/* Contoured Backrest Cushion */}
+      {/* Contoured Backrest Uprights & Cushion */}
       <group position={[0, 0.74, 0.21]}>
+        <mesh position={[-0.18, -0.09, 0]}>
+          <cylinderGeometry args={[0.014, 0.014, 0.42, 8]} />
+          <meshStandardMaterial color="#1e293b" metalness={0.7} />
+        </mesh>
+        <mesh position={[0.18, -0.09, 0]}>
+          <cylinderGeometry args={[0.014, 0.014, 0.42, 8]} />
+          <meshStandardMaterial color="#1e293b" metalness={0.7} />
+        </mesh>
         <mesh castShadow>
           <boxGeometry args={[0.46, 0.36, 0.035]} />
           <meshStandardMaterial
@@ -105,191 +60,73 @@ export function StudentChairMesh({ color, isHovered, isOccupied }: StudentChairP
             emissiveIntensity={isHovered ? 0.3 : 0}
           />
         </mesh>
-        {/* Lumbar Ventilation Slots */}
-        {[-0.08, 0, 0.08].map((y, i) => (
-          <mesh key={`slot-${i}`} position={[0, y, 0.005]}>
-            <boxGeometry args={[0.28, 0.02, 0.04]} />
-            <meshStandardMaterial color="#0f172a" />
-          </mesh>
-        ))}
       </group>
-
-      {/* Subtle Ground Focus Ring when hovered */}
-      {isHovered && (
-        <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.34, 0.42, 32]} />
-          <meshBasicMaterial color={isOccupied ? '#ef4444' : '#10b981'} transparent opacity={0.65} />
-        </mesh>
-      )}
     </group>
   );
-}
+});
 
 // ==========================================
-// 2. PREMIUM STUDENT DESK COMPONENT
+// 2. HIGH-PERFORMANCE STUDENT DESK COMPONENT
 // ==========================================
 interface StudentDeskProps {
   hasLaptop?: boolean;
 }
 
-export function StudentDeskMesh({ hasLaptop = false }: StudentDeskProps) {
+export const StudentDeskMesh = React.memo(function StudentDeskMesh({ hasLaptop = false }: StudentDeskProps) {
   return (
     <group position={[0, 0, -0.65]}>
-      {/* --- Maple Laminated Desktop --- */}
+      {/* Maple Laminated Desktop */}
       <mesh position={[0, 0.72, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.08, 0.05, 0.68]} />
         <meshStandardMaterial color="#e2b17a" roughness={0.3} metalness={0.05} />
       </mesh>
-      {/* Dark Walnut Edge Banding Trim */}
-      <mesh position={[0, 0.72, 0]}>
-        <boxGeometry args={[1.09, 0.048, 0.69]} />
-        <meshStandardMaterial color="#78350f" roughness={0.5} wireframe={false} />
-      </mesh>
-      {/* Recessed Pencil Groove along top edge */}
-      <mesh position={[0, 0.746, -0.24]}>
-        <boxGeometry args={[0.7, 0.006, 0.03]} />
-        <meshStandardMaterial color="#92400e" roughness={0.6} />
+
+      {/* Under-Desk Storage Shelf */}
+      <mesh position={[0, 0.58, 0]}>
+        <boxGeometry args={[0.84, 0.02, 0.48]} />
+        <meshStandardMaterial color="#334155" metalness={0.6} roughness={0.3} />
       </mesh>
 
-      {/* --- Under-Desk Wire Mesh Book Basket --- */}
-      <group position={[0, 0.58, 0]}>
-        {/* Basket Bottom Wire Mesh */}
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[0.82, 0.015, 0.48]} />
-          <meshStandardMaterial color="#334155" metalness={0.7} roughness={0.3} />
-        </mesh>
-        {/* Basket Wire Guard Rails */}
-        <mesh position={[0, 0.05, -0.24]}>
-          <boxGeometry args={[0.82, 0.1, 0.015]} />
-          <meshStandardMaterial color="#334155" metalness={0.7} roughness={0.3} />
-        </mesh>
-        <mesh position={[0, 0.05, 0.24]}>
-          <boxGeometry args={[0.82, 0.1, 0.015]} />
-          <meshStandardMaterial color="#334155" metalness={0.7} roughness={0.3} />
-        </mesh>
-
-        {/* Stored Textbook inside basket */}
-        <mesh position={[-0.15, 0.04, 0]} rotation={[0, 0.08, 0]} castShadow>
-          <boxGeometry args={[0.38, 0.06, 0.3]} />
-          <meshStandardMaterial color="#1e3a8a" roughness={0.5} />
-        </mesh>
-        {/* Stored Binder */}
-        <mesh position={[0.2, 0.03, 0]} rotation={[0, -0.05, 0]} castShadow>
-          <boxGeometry args={[0.3, 0.04, 0.34]} />
-          <meshStandardMaterial color="#047857" roughness={0.5} />
-        </mesh>
-      </group>
-
-      {/* --- Welded Tubular Steel Frame --- */}
-      {/* 4 Tubular Legs */}
+      {/* 4 Tubular Steel Legs */}
       {[-0.46, 0.46].map((x) =>
         [-0.26, 0.26].map((z) => (
-          <group key={`leg-${x}-${z}`}>
-            <mesh position={[x, 0.36, z]} castShadow>
-              <cylinderGeometry args={[0.02, 0.02, 0.72, 12]} />
-              <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.25} />
-            </mesh>
-            {/* Rubber Feet */}
-            <mesh position={[x, 0.015, z]}>
-              <cylinderGeometry args={[0.026, 0.026, 0.03, 12]} />
-              <meshStandardMaterial color="#0f172a" roughness={0.9} />
-            </mesh>
-          </group>
+          <mesh key={`leg-${x}-${z}`} position={[x, 0.36, z]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.72, 8]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
+          </mesh>
         ))
       )}
 
       {/* Side Horizontal Stretcher Rails */}
       <mesh position={[-0.46, 0.18, 0]}>
         <boxGeometry args={[0.025, 0.025, 0.52]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.8} />
+        <meshStandardMaterial color="#1e293b" metalness={0.7} />
       </mesh>
       <mesh position={[0.46, 0.18, 0]}>
         <boxGeometry args={[0.025, 0.025, 0.52]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.8} />
+        <meshStandardMaterial color="#1e293b" metalness={0.7} />
       </mesh>
 
-      {/* Side Backpack Hook & Canvas Backpack (Left Leg) */}
-      <group position={[-0.48, 0.55, 0]}>
-        {/* Metal Hook */}
-        <mesh rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.008, 0.008, 0.05, 8]} />
-          <meshStandardMaterial color="#94a3b8" metalness={0.9} />
-        </mesh>
-        <mesh position={[-0.03, 0.02, 0]}>
-          <boxGeometry args={[0.015, 0.04, 0.015]} />
-          <meshStandardMaterial color="#94a3b8" metalness={0.9} />
-        </mesh>
-        {/* Hanging Canvas Backpack */}
-        <mesh position={[-0.08, -0.22, 0]} castShadow>
-          <boxGeometry args={[0.16, 0.34, 0.24]} />
-          <meshStandardMaterial color="#0369a1" roughness={0.8} />
-        </mesh>
-        <mesh position={[-0.14, -0.22, 0]}>
-          <boxGeometry args={[0.04, 0.18, 0.18]} />
-          <meshStandardMaterial color="#0284c7" roughness={0.8} />
-        </mesh>
-      </group>
-
-      {/* --- Desktop Learning Accessories --- */}
-      {/* 1. Spiral Notebook */}
-      <group position={[-0.24, 0.75, 0.04]} rotation={[0, 0.08, 0]}>
-        <mesh castShadow>
-          <boxGeometry args={[0.3, 0.02, 0.38]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.4} />
-        </mesh>
-        {/* Colored notebook cover strip */}
-        <mesh position={[-0.14, 0.012, 0]}>
-          <boxGeometry args={[0.03, 0.005, 0.38]} />
-          <meshStandardMaterial color="#e11d48" />
-        </mesh>
-      </group>
-
-      {/* 2. Stainless Steel Insulated Flask / Water Bottle */}
-      <group position={[0.38, 0.84, -0.16]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.042, 0.042, 0.22, 16]} />
-          <meshStandardMaterial color="#0284c7" metalness={0.6} roughness={0.2} />
-        </mesh>
-        {/* Steel Cap */}
-        <mesh position={[0, 0.12, 0]}>
-          <cylinderGeometry args={[0.032, 0.032, 0.04, 16]} />
-          <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.1} />
-        </mesh>
-      </group>
-
-      {/* 3. Highlighter & Pen in Pencil Groove */}
-      <mesh position={[-0.08, 0.755, -0.24]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.007, 0.007, 0.16, 8]} />
-        <meshStandardMaterial color="#facc15" roughness={0.3} />
-      </mesh>
-      <mesh position={[0.1, 0.755, -0.24]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.005, 0.005, 0.15, 8]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.3} />
-      </mesh>
-
-      {/* 4. Student Slim Laptop (Optional on some desks) */}
+      {/* Compact Classroom Laptop (on designated desks) */}
       {hasLaptop && (
-        <group position={[0.08, 0.75, 0.02]} rotation={[0, -0.1, 0]}>
-          {/* Base */}
-          <mesh castShadow>
-            <boxGeometry args={[0.32, 0.015, 0.24]} />
-            <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.3} />
+        <group position={[0, 0.75, 0.02]}>
+          <mesh>
+            <boxGeometry args={[0.34, 0.015, 0.24]} />
+            <meshStandardMaterial color="#334155" metalness={0.8} roughness={0.2} />
           </mesh>
-          {/* Open Screen */}
-          <mesh position={[0, 0.12, -0.11]} rotation={[-0.35, 0, 0]} castShadow>
-            <boxGeometry args={[0.32, 0.22, 0.012]} />
-            <meshStandardMaterial color="#1e293b" />
+          <mesh position={[0, 0.11, -0.11]} rotation={[-0.25, 0, 0]}>
+            <boxGeometry args={[0.34, 0.22, 0.012]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.2} />
           </mesh>
-          {/* Screen Light */}
-          <mesh position={[0, 0.12, -0.104]} rotation={[-0.35, 0, 0]}>
-            <boxGeometry args={[0.3, 0.2, 0.004]} />
-            <meshBasicMaterial color="#38bdf8" />
+          <mesh position={[0, 0.11, -0.104]} rotation={[-0.25, 0, 0]}>
+            <boxGeometry args={[0.31, 0.19, 0.002]} />
+            <meshBasicMaterial color="#0284c7" />
           </mesh>
         </group>
       )}
     </group>
   );
-}
+});
 
 // ==========================================
 // 3. EXECUTIVE TEACHER DESK COMPONENT

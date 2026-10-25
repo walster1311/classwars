@@ -78,15 +78,12 @@ export function RealisticClassroomWindow({ index, position }: RealisticWindowPro
       {/* Realistic architectural glass with high transmission and subtle sky reflection */}
       <mesh position={[0.06, 0, 0]}>
         <boxGeometry args={[0.015, 2.52, 3.12]} />
-        <meshPhysicalMaterial
-          color="#e0f2fe"
-          transmission={0.92}
+        <meshStandardMaterial
+          color="#dbeafe"
           roughness={0.05}
-          ior={1.52}
-          thickness={0.08}
+          metalness={0.1}
           transparent
-          opacity={0.35}
-          reflectivity={0.9}
+          opacity={0.32}
         />
       </mesh>
 

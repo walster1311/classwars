@@ -18,12 +18,27 @@ import {
   BulletinBoardMesh
 } from './props/ClassroomFurniture';
 
+// Isolated PlayerAvatars component to prevent re-rendering the entire 100-seat classroom scene on movement
+function PlayerAvatars() {
+  const players = useClassroomStore((s) => s.players);
+  const mySessionId = useClassroomStore((s) => s.mySessionId);
+
+  return (
+    <group>
+      {Object.values(players).map((player) => (
+        <Avatar
+          key={player.sessionId}
+          player={player}
+          isLocal={player.sessionId === mySessionId}
+        />
+      ))}
+    </group>
+  );
+}
+
 export function ClassroomScene() {
   const { camera } = useThree();
 
-  const players = useClassroomStore((s) => s.players);
-  const mySessionId = useClassroomStore((s) => s.mySessionId);
-  const mySeatId = useClassroomStore((s) => s.mySeatId);
   const wallCutoffMode = useClassroomStore((s) => s.wallCutoffMode);
 
   // Four upper wall refs for dynamic cutaway
@@ -113,15 +128,15 @@ export function ClassroomScene() {
         intensity={1.25}
         color="#fffbeb"
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
         shadow-camera-near={0.5}
         shadow-camera-far={80}
         shadow-camera-left={-22}
         shadow-camera-right={22}
         shadow-camera-top={22}
         shadow-camera-bottom={-22}
-        shadow-bias={-0.0004}
+        shadow-bias={-0.0002}
       />
       {/* Fill bounce light from front right */}
       <directionalLight position={[16, 16, 14]} intensity={0.45} color="#93c5fd" />
@@ -404,13 +419,7 @@ export function ClassroomScene() {
       ))}
 
       {/* ================= SYNCHRONIZED PLAYER AVATARS ================= */}
-      {Object.values(players).map((player) => (
-        <Avatar
-          key={player.sessionId}
-          player={player}
-          isLocal={player.sessionId === mySessionId}
-        />
-      ))}
+      <PlayerAvatars />
     </group>
   );
 }
