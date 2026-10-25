@@ -103,7 +103,7 @@ test.describe('CLASSVERSE Multiplayer Virtual Classroom Tests', () => {
     await teacherPage.locator('button[type="submit"]').click();
 
     // Verify announcement appears on student screen
-    await expect(student1Page.locator('text=Please open textbook chapter 4 on Mitosis.')).toBeVisible({ timeout: 8000 });
+    await expect(student1Page.locator('text=Please open textbook chapter 4 on Mitosis.').first()).toBeVisible({ timeout: 8000 });
 
     console.log('[Test] Step 7: Cleaning up contexts...');
     await teacherContext.close();

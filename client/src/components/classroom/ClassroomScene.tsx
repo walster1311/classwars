@@ -17,11 +17,7 @@ import {
   SuspendedCeilingLamps
 } from './props/ClassroomFurniture';
 
-interface ClassroomSceneProps {
-  onFloorClick?: (point: THREE.Vector3) => void;
-}
-
-export function ClassroomScene({ onFloorClick }: ClassroomSceneProps) {
+export function ClassroomScene() {
   const { camera } = useThree();
 
   const players = useClassroomStore((s) => s.players);
@@ -40,16 +36,6 @@ export function ClassroomScene({ onFloorClick }: ClassroomSceneProps) {
   const backScale = useRef(0.001); // cut off when looking from +Z
   const leftScale = useRef(1.0);
   const rightScale = useRef(0.001); // cut off when looking from +X
-
-  const handleFloorPointerDown = (e: any) => {
-    e.stopPropagation();
-    if (mySeatId) {
-      colyseusService.sendStand();
-    }
-    if (e.point && onFloorClick) {
-      onFloorClick(e.point);
-    }
-  };
 
   // Dynamic Camera Orbit Wall Cutoff System
   useFrame((_, delta) => {
@@ -148,7 +134,6 @@ export function ClassroomScene({ onFloorClick }: ClassroomSceneProps) {
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.01, 0]}
         receiveShadow
-        onPointerDown={handleFloorPointerDown}
       >
         <planeGeometry args={[16.2, 14.2]} />
         <meshStandardMaterial color="#c29b69" roughness={0.3} metalness={0.06} />

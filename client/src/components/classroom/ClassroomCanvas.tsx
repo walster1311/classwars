@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
 import { CLASSROOM_BOUNDS } from '@classverse/shared';
@@ -14,24 +14,10 @@ export function ClassroomCanvas() {
   const myPlayer = useClassroomStore((s) => s.players[s.mySessionId]);
   const mySeatId = useClassroomStore((s) => s.mySeatId);
 
-  // Keyboard navigation state
+  // Keyboard navigation state (WASD / Arrows only)
   const keysDown = useRef<Record<string, boolean>>({});
-  const moveTarget = useRef<THREE.Vector3 | null>(null);
   const lastSentPos = useRef({ x: 0, y: 0, z: 0, rotY: 0 });
   const lastSendTime = useRef(0);
-
-  // Handle Floor Click-to-Move
-  const handleFloorClick = useCallback((point: THREE.Vector3) => {
-    // If seated, stand first
-    if (mySeatId) {
-      colyseusService.sendStand();
-    }
-    moveTarget.current = new THREE.Vector3(
-      Math.max(CLASSROOM_BOUNDS.minX, Math.min(CLASSROOM_BOUNDS.maxX, point.x)),
-      0,
-      Math.max(CLASSROOM_BOUNDS.minZ, Math.min(CLASSROOM_BOUNDS.maxZ, point.z))
-    );
-  }, [mySeatId]);
 
   // Keyboard listeners
   useEffect(() => {
@@ -44,7 +30,6 @@ export function ClassroomCanvas() {
       const key = e.key.toLowerCase();
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
         keysDown.current[key] = true;
-        moveTarget.current = null; // Keyboard overrides click-to-move
         if (mySeatId) {
           colyseusService.sendStand();
         }
@@ -79,7 +64,7 @@ export function ClassroomCanvas() {
         let dx = 0;
         let dz = 0;
 
-        // 1. Check Keyboard Inputs
+        // Check Keyboard Inputs (WASD / Arrow Keys)
         if (keysDown.current['w'] || keysDown.current['arrowup']) dz -= speed;
         if (keysDown.current['s'] || keysDown.current['arrowdown']) dz += speed;
         if (keysDown.current['a'] || keysDown.current['arrowleft']) dx -= speed;
@@ -101,22 +86,6 @@ export function ClassroomCanvas() {
           newZ = Math.max(CLASSROOM_BOUNDS.minZ, Math.min(CLASSROOM_BOUNDS.maxZ, player.z + dz));
           newRotY = Math.atan2(dx, dz);
           isMoving = true;
-        } else if (moveTarget.current) {
-          // 2. Click-to-move handling
-          const toTargetX = moveTarget.current.x - player.x;
-          const toTargetZ = moveTarget.current.z - player.z;
-          const dist = Math.hypot(toTargetX, toTargetZ);
-
-          if (dist > 0.15) {
-            const stepX = (toTargetX / dist) * Math.min(speed, dist);
-            const stepZ = (toTargetZ / dist) * Math.min(speed, dist);
-            newX = player.x + stepX;
-            newZ = player.z + stepZ;
-            newRotY = Math.atan2(stepX, stepZ);
-            isMoving = true;
-          } else {
-            moveTarget.current = null;
-          }
         }
 
         // Send network updates if moved or animation state changed
@@ -162,7 +131,7 @@ export function ClassroomCanvas() {
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
       >
         <CameraController />
-        <ClassroomScene onFloorClick={handleFloorClick} />
+        <ClassroomScene />
       </Canvas>
 
       {/* Subtle Controls Helper Overlay */}
@@ -173,13 +142,13 @@ export function ClassroomCanvas() {
         </div>
         <span className="text-slate-600">•</span>
         <div className="flex items-center gap-1.5">
-          <span className="text-indigo-400 font-medium">Click Floor</span>
-          <span>Move</span>
+          <span className="text-emerald-400 font-medium">Click Chair</span>
+          <span>Sit</span>
         </div>
         <span className="text-slate-600">•</span>
         <div className="flex items-center gap-1.5">
-          <span className="text-emerald-400 font-medium">Click Chair</span>
-          <span>Sit</span>
+          <span className="text-indigo-400 font-medium">Orbit View</span>
+          <span>Drag Mouse</span>
         </div>
       </div>
     </div>
