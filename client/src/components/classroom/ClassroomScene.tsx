@@ -11,6 +11,7 @@ import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
 import { SmartBoard } from './props/SmartBoard';
 import { ClassroomClock } from './props/ClassroomClock';
+import { RealisticClassroomWindow } from './props/RealisticClassroomWindow';
 import {
   TeacherDeskMesh,
   DetailedBookshelf,
@@ -265,68 +266,64 @@ export function ClassroomScene() {
         </group>
       </group>
 
-      {/* 3. LEFT UPPER WALL & PROPS (X = -13.1) */}
+      {/* 3. LEFT UPPER WALL WITH AUTHENTIC APERTURES & WINDOW REVEALS (X = -13.1) */}
       <group ref={leftWallRef} position={[0, 0.58, 0]}>
-        <mesh position={[-13.1, 2.21, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 4.42, 29.4]} />
+        {/* Continuous Lower Spandrel Wall under windows (Y: 0 to 0.85) */}
+        <mesh position={[-13.1, 0.425, 0]} receiveShadow>
+          <boxGeometry args={[0.2, 0.85, 29.4]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
+        {/* Wainscoting on lower wall */}
         <mesh position={[-12.99, 0.35, 0]}>
           <boxGeometry args={[0.04, 0.7, 29.4]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
 
-        {/* 4 Grand Sunlit Windows */}
+        {/* Continuous Upper Header Wall above windows (Y: 3.45 to 4.42) */}
+        <mesh position={[-13.1, 3.935, 0]} receiveShadow>
+          <boxGeometry args={[0.2, 0.97, 29.4]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
+        </mesh>
+
+        {/* Structural Wall Piers between Window Openings (Y: 0.85 to 3.45, Height: 2.6) */}
+        {/* Pier 1: Front Corner to Window 1 (Z: -14.7 to -10.6) */}
+        <mesh position={[-13.1, 2.15, -12.65]} receiveShadow>
+          <boxGeometry args={[0.2, 2.6, 4.1]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
+        </mesh>
+        {/* Pier 2: Between Window 1 & 2 (Z: -7.4 to -4.6) */}
+        <mesh position={[-13.1, 2.15, -6.0]} receiveShadow>
+          <boxGeometry args={[0.2, 2.6, 2.8]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
+        </mesh>
+        {/* Pier 3: Center Wall between Window 2 & 3 (Z: -1.4 to 1.4, holds Bulletin Board) */}
+        <mesh position={[-13.1, 2.15, 0.0]} receiveShadow>
+          <boxGeometry args={[0.2, 2.6, 2.8]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
+        </mesh>
+        {/* Pier 4: Between Window 3 & 4 (Z: 4.6 to 7.4) */}
+        <mesh position={[-13.1, 2.15, 6.0]} receiveShadow>
+          <boxGeometry args={[0.2, 2.6, 2.8]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
+        </mesh>
+        {/* Pier 5: Window 4 to Rear Corner (Z: 10.6 to 14.7) */}
+        <mesh position={[-13.1, 2.15, 12.65]} receiveShadow>
+          <boxGeometry args={[0.2, 2.6, 4.1]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
+        </mesh>
+
+        {/* 4 Architectural Realistic Windows with Outdoor Campus Vista */}
         {[-9.0, -3.0, 3.0, 9.0].map((zPos, idx) => (
-          <group key={`win-${idx}`} position={[-12.95, 2.02, zPos]} rotation={[0, Math.PI / 2, 0]}>
-            <mesh castShadow>
-              <boxGeometry args={[3.4, 2.5, 0.12]} />
-              <meshStandardMaterial color="#f8fafc" roughness={0.3} />
-            </mesh>
-            <mesh position={[0, 0, 0.02]}>
-              <boxGeometry args={[3.2, 2.3, 0.02]} />
-              <meshStandardMaterial color="#bae6fd" transparent opacity={0.6} roughness={0.1} />
-            </mesh>
-            <mesh position={[0, 0, 0.04]}>
-              <boxGeometry args={[3.2, 0.06, 0.04]} />
-              <meshStandardMaterial color="#f8fafc" />
-            </mesh>
-            <mesh position={[0, 0, 0.04]}>
-              <boxGeometry args={[0.06, 2.3, 0.04]} />
-              <meshStandardMaterial color="#f8fafc" />
-            </mesh>
-            <mesh position={[0, -1.3, 0.12]} castShadow receiveShadow>
-              <boxGeometry args={[3.6, 0.12, 0.38]} />
-              <meshStandardMaterial color="#78350f" roughness={0.4} />
-            </mesh>
-            <group position={[0, 1.15, 0.06]}>
-              <mesh>
-                <boxGeometry args={[3.2, 0.08, 0.06]} />
-                <meshStandardMaterial color="#cbd5e1" />
-              </mesh>
-              {Array.from({ length: 14 }).map((_, bIdx) => (
-                <mesh key={`blind-${bIdx}`} position={[0, -bIdx * 0.15 - 0.08, 0.02]} rotation={[0.4, 0, 0]}>
-                  <boxGeometry args={[3.15, 0.04, 0.005]} />
-                  <meshStandardMaterial color="#f1f5f9" roughness={0.5} />
-                </mesh>
-              ))}
-            </group>
-            <group position={[1.1, -1.08, 0.16]}>
-              <mesh castShadow>
-                <cylinderGeometry args={[0.16, 0.11, 0.24, 16]} />
-                <meshStandardMaterial color="#c2410c" roughness={0.8} />
-              </mesh>
-              <mesh position={[0, 0.2, 0]}>
-                <sphereGeometry args={[0.22, 12, 12]} />
-                <meshStandardMaterial color="#15803d" roughness={0.4} />
-              </mesh>
-            </group>
-          </group>
+          <RealisticClassroomWindow
+            key={`win-${idx}`}
+            index={idx}
+            position={[-13.1, 2.15, zPos]}
+          />
         ))}
 
-        {/* Cork Bulletin Board */}
+        {/* Cork Bulletin Board Mounted on Center Wall Pier 3 */}
         <group position={[0, -0.58, 0]}>
-          <BulletinBoardMesh position={[-12.95, 2.5, 0]} />
+          <BulletinBoardMesh position={[-12.95, 2.5, 0.0]} />
         </group>
       </group>
 
