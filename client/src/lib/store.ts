@@ -189,12 +189,18 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
 
   initSeats: (initialSeats) => set({ seats: initialSeats }),
 
-  updateSeat: (seatId, occupiedBy, occupiedByName) => set((state) => ({
-    seats: {
-      ...state.seats,
-      [seatId]: { occupiedBy, occupiedByName }
+  updateSeat: (seatId, occupiedBy, occupiedByName) => set((state) => {
+    const cur = state.seats[seatId];
+    if (cur && cur.occupiedBy === occupiedBy && cur.occupiedByName === occupiedByName) {
+      return state;
     }
-  })),
+    return {
+      seats: {
+        ...state.seats,
+        [seatId]: { occupiedBy, occupiedByName }
+      }
+    };
+  }),
 
   addMessage: (msg) => set((state) => ({
     messages: [...state.messages.slice(-150), msg]

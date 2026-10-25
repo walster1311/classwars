@@ -47,7 +47,7 @@ export function RightSidebar() {
   };
 
   return (
-    <aside className="w-80 bg-slate-900/90 backdrop-blur-md border-l border-slate-800 flex flex-col h-[calc(100vh-3.5rem-4.5rem)] select-none z-20 shadow-lg">
+    <aside className="w-80 bg-slate-900 border-l border-slate-800 flex flex-col h-[calc(100vh-3.5rem-4.5rem)] select-none z-20 shadow-lg">
       {/* Header Tabs */}
       <div className="flex border-b border-slate-800 p-1.5 gap-1 bg-slate-950/60">
         <button

@@ -77,8 +77,8 @@ export const SeatStation = React.memo(function SeatStation({ seat }: SeatStation
             <div
               className={`px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap shadow-xl pointer-events-none transition-all flex items-center gap-1.5 ${
                 isOccupied
-                  ? 'bg-rose-950/90 text-rose-200 border border-rose-500/80 backdrop-blur-sm'
-                  : 'bg-emerald-950/90 text-emerald-200 border border-emerald-500/80 backdrop-blur-sm'
+                  ? 'bg-rose-950/95 text-rose-200 border border-rose-500/80'
+                  : 'bg-emerald-950/95 text-emerald-200 border border-emerald-500/80'
               }`}
             >
               <span className={`w-2 h-2 rounded-full ${isOccupied ? 'bg-rose-400' : 'bg-emerald-400 animate-ping'}`} />

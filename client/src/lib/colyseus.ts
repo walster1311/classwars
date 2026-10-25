@@ -1,6 +1,7 @@
 import { Client, Room } from 'colyseus.js';
 import { ClassroomState, MSG_TYPES, UserRole, ClassroomMode } from '@classverse/shared';
 import { useClassroomStore } from './store';
+import { setPlayerTransform, removePlayerTransform, clearPlayerTransforms } from './transforms';
 
 class ColyseusService {
   private client: Client | null = null;
@@ -81,6 +82,15 @@ class ColyseusService {
 
     // 1. Players synchronization
     const registerPlayer = (player: any, sessionId: string) => {
+      // Store transform in fast in-memory map for 60Hz 3D rendering
+      setPlayerTransform(sessionId, {
+        x: player.x,
+        y: player.y,
+        z: player.z,
+        rotY: player.rotY,
+        animation: player.animation
+      });
+
       useClassroomStore.getState().upsertPlayer(sessionId, {
         id: player.id || sessionId,
         sessionId,
@@ -102,21 +112,39 @@ class ColyseusService {
 
       // Track individual player field changes
       player.onChange(() => {
-        useClassroomStore.getState().upsertPlayer(sessionId, {
-          displayName: player.displayName,
-          role: player.role as UserRole,
-          avatarColor: player.avatarColor,
+        // High frequency position updates go directly to fast transforms map (bypassing React DOM)
+        setPlayerTransform(sessionId, {
           x: player.x,
           y: player.y,
           z: player.z,
           rotY: player.rotY,
-          animation: player.animation,
-          seatId: player.seatId || null,
-          isHandRaised: player.isHandRaised,
-          canSpeak: player.canSpeak,
-          isMuted: player.isMuted,
-          handRaiseTime: player.handRaiseTime
+          animation: player.animation
         });
+
+        // Only dispatch to Zustand if metadata (seat, mic, hand, role, name) actually changed
+        const cur = useClassroomStore.getState().players[sessionId];
+        const metaChanged = !cur ||
+          cur.displayName !== player.displayName ||
+          cur.role !== player.role ||
+          cur.avatarColor !== player.avatarColor ||
+          cur.seatId !== (player.seatId || null) ||
+          cur.isHandRaised !== player.isHandRaised ||
+          cur.canSpeak !== player.canSpeak ||
+          cur.isMuted !== player.isMuted ||
+          cur.handRaiseTime !== player.handRaiseTime;
+
+        if (metaChanged) {
+          useClassroomStore.getState().upsertPlayer(sessionId, {
+            displayName: player.displayName,
+            role: player.role as UserRole,
+            avatarColor: player.avatarColor,
+            seatId: player.seatId || null,
+            isHandRaised: player.isHandRaised,
+            canSpeak: player.canSpeak,
+            isMuted: player.isMuted,
+            handRaiseTime: player.handRaiseTime
+          });
+        }
 
         // If local user's permissions changed
         if (sessionId === room.sessionId) {
@@ -131,13 +159,8 @@ class ColyseusService {
     room.state.players.forEach(registerPlayer);
     room.state.players.onAdd(registerPlayer);
 
-    // Sync state on every patch
-    room.onStateChange((state) => {
-      state.players.forEach(registerPlayer);
-      state.seats.forEach(registerSeat);
-    });
-
     room.state.players.onRemove((_, sessionId) => {
+      removePlayerTransform(sessionId);
       useClassroomStore.getState().removePlayer(sessionId);
     });
 
@@ -341,6 +364,7 @@ class ColyseusService {
   }
 
   disconnect() {
+    clearPlayerTransforms();
     if (this.room) {
       this.room.leave();
       this.room = null;

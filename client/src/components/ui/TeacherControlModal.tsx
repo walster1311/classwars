@@ -40,7 +40,7 @@ export function TeacherControlModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 select-none">
       <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col">
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">

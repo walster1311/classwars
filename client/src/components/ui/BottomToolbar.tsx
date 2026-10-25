@@ -71,7 +71,7 @@ export function BottomToolbar() {
   const reactions = ['👏', '👍', '❤️', '💡', '🎉', '🔥', '🙌', '⭐'];
 
   return (
-    <footer className="h-16 border-t border-slate-800 bg-slate-900/95 backdrop-blur-md px-6 flex items-center justify-between select-none z-30 relative shadow-2xl">
+    <footer className="h-16 border-t border-slate-800 bg-slate-900 px-6 flex items-center justify-between select-none z-30 relative shadow-2xl">
       {/* Left: Status note */}
       <div className="flex items-center gap-3 text-xs text-slate-400">
         <div className="flex items-center gap-1.5">

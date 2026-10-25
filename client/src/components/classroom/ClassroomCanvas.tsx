@@ -8,10 +8,10 @@ import { ClassroomScene } from './ClassroomScene';
 import { CameraController } from './CameraController';
 import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
+import { getPlayerTransform, setPlayerTransform } from '@/lib/transforms';
 
 export function ClassroomCanvas() {
   const mySessionId = useClassroomStore((s) => s.mySessionId);
-  const myPlayer = useClassroomStore((s) => s.players[s.mySessionId]);
   const mySeatId = useClassroomStore((s) => s.mySeatId);
 
   // Keyboard navigation state (WASD / Arrows only)
@@ -70,10 +70,15 @@ export function ClassroomCanvas() {
         if (keysDown.current['a'] || keysDown.current['arrowleft']) dx -= speed;
         if (keysDown.current['d'] || keysDown.current['arrowright']) dx += speed;
 
+        const curTrans = getPlayerTransform(mySessionId);
+        const curX = curTrans ? curTrans.x : player.x;
+        const curZ = curTrans ? curTrans.z : player.z;
+        const curRotY = curTrans ? curTrans.rotY : player.rotY;
+
         let isMoving = false;
-        let newX = player.x;
-        let newZ = player.z;
-        let newRotY = player.rotY;
+        let newX = curX;
+        let newZ = curZ;
+        let newRotY = curRotY;
 
         if (dx !== 0 || dz !== 0) {
           // Normalize diagonal movement
@@ -82,8 +87,8 @@ export function ClassroomCanvas() {
             dz *= 0.7071;
           }
 
-          newX = Math.max(CLASSROOM_BOUNDS.minX, Math.min(CLASSROOM_BOUNDS.maxX, player.x + dx));
-          newZ = Math.max(CLASSROOM_BOUNDS.minZ, Math.min(CLASSROOM_BOUNDS.maxZ, player.z + dz));
+          newX = Math.max(CLASSROOM_BOUNDS.minX, Math.min(CLASSROOM_BOUNDS.maxX, curX + dx));
+          newZ = Math.max(CLASSROOM_BOUNDS.minZ, Math.min(CLASSROOM_BOUNDS.maxZ, curZ + dz));
           newRotY = Math.atan2(dx, dz);
           isMoving = true;
         }
@@ -97,8 +102,8 @@ export function ClassroomCanvas() {
           lastSentPos.current = { x: newX, y: 0, z: newZ, rotY: newRotY };
           lastSendTime.current = now;
 
-          // Optimistically update local player in store
-          useClassroomStore.getState().upsertPlayer(mySessionId, {
+          // Directly update fast in-memory transform (bypasses React Virtual DOM completely!)
+          setPlayerTransform(mySessionId, {
             x: newX,
             y: 0,
             z: newZ,
@@ -107,12 +112,12 @@ export function ClassroomCanvas() {
           });
 
           colyseusService.sendMove(newX, 0, newZ, newRotY, 'walk');
-        } else if (!isMoving && player.animation === 'walk') {
+        } else if (!isMoving && curTrans?.animation === 'walk') {
           // Stopped moving
-          useClassroomStore.getState().upsertPlayer(mySessionId, {
+          setPlayerTransform(mySessionId, {
             animation: anim
           });
-          colyseusService.sendMove(player.x, 0, player.z, player.rotY, anim);
+          colyseusService.sendMove(newX, 0, newZ, newRotY, anim);
         }
       }
 
@@ -137,7 +142,7 @@ export function ClassroomCanvas() {
       </Canvas>
 
       {/* Subtle Controls Helper Overlay */}
-      <div className="absolute top-4 left-4 z-10 pointer-events-none bg-slate-900/80 backdrop-blur-md border border-slate-700/60 rounded-lg px-3 py-2 text-xs text-slate-300 shadow-lg flex items-center gap-3">
+      <div className="absolute top-4 left-4 z-10 pointer-events-none bg-slate-900/95 border border-slate-700/60 rounded-lg px-3 py-2 text-xs text-slate-300 shadow-lg flex items-center gap-3">
         <div className="flex items-center gap-1.5">
           <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-600 rounded text-[10px] font-mono font-bold text-slate-200">WASD</kbd>
           <span>Walk</span>

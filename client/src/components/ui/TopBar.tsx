@@ -7,16 +7,14 @@ import { useClassroomStore } from '@/lib/store';
 export function TopBar() {
   const classroomTitle = useClassroomStore((s) => s.classroomTitle);
   const mode = useClassroomStore((s) => s.mode);
-  const players = useClassroomStore((s) => s.players);
+  const participantCount = useClassroomStore((s) => Object.keys(s.players).length);
   const myRole = useClassroomStore((s) => s.myRole);
   const myDisplayName = useClassroomStore((s) => s.myDisplayName);
   const isConnected = useClassroomStore((s) => s.isConnected);
   const setTeacherModalOpen = useClassroomStore((s) => s.setTeacherModalOpen);
 
-  const participantCount = Object.keys(players).length;
-
   return (
-    <header className="h-14 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md px-4 flex items-center justify-between select-none z-30 relative shadow-md">
+    <header className="h-14 border-b border-slate-800 bg-slate-900 px-4 flex items-center justify-between select-none z-30 relative shadow-md">
       {/* Left: Brand & Classroom Info */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">

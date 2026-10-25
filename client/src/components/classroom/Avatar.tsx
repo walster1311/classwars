@@ -5,13 +5,14 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { ClientPlayer, useClassroomStore } from '@/lib/store';
+import { getPlayerTransform } from '@/lib/transforms';
 
 interface AvatarProps {
   player: ClientPlayer;
   isLocal: boolean;
 }
 
-export function Avatar({ player, isLocal }: AvatarProps) {
+export const Avatar = React.memo(function Avatar({ player, isLocal }: AvatarProps) {
   const groupRef = useRef<THREE.Group>(null);
   const bodyRef = useRef<THREE.Group>(null);
   const leftArmRef = useRef<THREE.Group>(null);
@@ -42,14 +43,21 @@ export function Avatar({ player, isLocal }: AvatarProps) {
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
+    // Read high-frequency transform from fast memory (falls back to player props)
+    const tForm = getPlayerTransform(player.sessionId);
+    const targetX = tForm !== undefined ? tForm.x : player.x;
+    const targetZ = tForm !== undefined ? tForm.z : player.z;
+    const targetRotY = tForm !== undefined ? tForm.rotY : (player.rotY || 0);
+    const isWalkingNow = tForm !== undefined ? (tForm.animation === 'walk') : isWalking;
+
     // Avatar root is always grounded at floor level (Y = 0)
     // Mesh articulation handles natural sitting height on the chair cushion
-    const targetPos = new THREE.Vector3(player.x, 0, player.z);
+    const targetPos = new THREE.Vector3(targetX, 0, targetZ);
     currentPos.current.lerp(targetPos, 0.25);
     groupRef.current.position.copy(currentPos.current);
 
     // Smooth rotation interpolation (normalize angle diff to avoid 360 spin)
-    let diff = (player.rotY - currentRotY.current) % (Math.PI * 2);
+    let diff = (targetRotY - currentRotY.current) % (Math.PI * 2);
     if (diff > Math.PI) diff -= Math.PI * 2;
     if (diff < -Math.PI) diff += Math.PI * 2;
     currentRotY.current += diff * 0.25;
@@ -103,7 +111,7 @@ export function Avatar({ player, isLocal }: AvatarProps) {
           rightArmRef.current.rotation.set(-Math.PI / 3.4, 0, -0.1);
         }
       }
-    } else if (isWalking) {
+    } else if (isWalkingNow) {
       // Walking swing
       const swing = Math.sin(t * 12) * 0.6;
       if (bodyRef.current) {
@@ -225,7 +233,7 @@ export function Avatar({ player, isLocal }: AvatarProps) {
           )}
 
           {/* Name & Role Badge */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-700/80 shadow-lg backdrop-blur-sm">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/95 border border-slate-700/80 shadow-lg">
             <span
               className="w-2 h-2 rounded-full inline-block"
               style={{ backgroundColor: shirtColor }}
@@ -341,4 +349,4 @@ export function Avatar({ player, isLocal }: AvatarProps) {
       </mesh>
     </group>
   );
-}
+});
