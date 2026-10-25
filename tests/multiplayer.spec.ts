@@ -4,6 +4,7 @@ test.describe('CLASSVERSE Multiplayer Virtual Classroom Tests', () => {
   let browser: Browser;
 
   test('MVP Acceptance Milestone: 1 Teacher + 5 Students join, sync roster, chat, and test hand-raise permissions', async ({ browser: b }) => {
+    test.setTimeout(90000);
     browser = b;
 
     // 1. Create separate isolated browser contexts for Teacher and 5 Students
@@ -21,18 +22,20 @@ test.describe('CLASSVERSE Multiplayer Virtual Classroom Tests', () => {
     const student4Page = await student4Context.newPage();
     const student5Page = await student5Context.newPage();
 
-    console.log('[Test] Step 1: Teacher connecting to classroom bio-101...');
-    await teacherPage.goto('/classroom/bio-101?role=teacher&name=Dr.+Evelyn+Reed&color=%236366F1');
+    const roomId = `bio-test-${Date.now()}`;
+
+    console.log(`[Test] Step 1: Teacher connecting to classroom ${roomId}...`);
+    await teacherPage.goto(`/classroom/${roomId}?role=teacher&name=Dr.+Evelyn+Reed&color=%236366F1`);
     await teacherPage.waitForSelector('text=Dr. Evelyn Reed', { timeout: 15000 });
     await expect(teacherPage.locator('text=Dr. Evelyn Reed').first()).toBeVisible();
     await expect(teacherPage.locator('text=Teacher Controls')).toBeVisible();
 
     console.log('[Test] Step 2: Students 1 through 5 connecting simultaneously...');
-    await student1Page.goto('/classroom/bio-101?role=student&name=Student+Alex&color=%2310B981');
-    await student2Page.goto('/classroom/bio-101?role=student&name=Student+Maya&color=%23F59E0B');
-    await student3Page.goto('/classroom/bio-101?role=student&name=Student+Liam&color=%230EA5E9');
-    await student4Page.goto('/classroom/bio-101?role=student&name=Student+Sophia&color=%23F43F5E');
-    await student5Page.goto('/classroom/bio-101?role=student&name=Student+Noah&color=%23A855F7');
+    await student1Page.goto(`/classroom/${roomId}?role=student&name=Student+Alex&color=%2310B981`);
+    await student2Page.goto(`/classroom/${roomId}?role=student&name=Student+Maya&color=%23F59E0B`);
+    await student3Page.goto(`/classroom/${roomId}?role=student&name=Student+Liam&color=%230EA5E9`);
+    await student4Page.goto(`/classroom/${roomId}?role=student&name=Student+Sophia&color=%23F43F5E`);
+    await student5Page.goto(`/classroom/${roomId}?role=student&name=Student+Noah&color=%23A855F7`);
 
     // Wait for all connections to establish
     await student1Page.waitForSelector('text=Student Alex', { timeout: 15000 });

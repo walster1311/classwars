@@ -11,7 +11,8 @@ import {
   Compass,
   Smile,
   LogOut,
-  Lock
+  Lock,
+  Layers
 } from 'lucide-react';
 import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
@@ -27,6 +28,8 @@ export function BottomToolbar() {
   const canSpeak = useClassroomStore((s) => s.canSpeak);
   const isMicMuted = useClassroomStore((s) => s.isMicMuted);
   const triggerCameraReset = useClassroomStore((s) => s.triggerCameraReset);
+  const wallCutoffMode = useClassroomStore((s) => s.wallCutoffMode);
+  const cycleWallCutoffMode = useClassroomStore((s) => s.cycleWallCutoffMode);
   const showToast = useClassroomStore((s) => s.showToast);
 
   const isTeacher = myRole === 'teacher';
@@ -183,6 +186,28 @@ export function BottomToolbar() {
             </div>
           )}
         </div>
+
+        {/* Wall Cutoff Mode Toggle */}
+        <button
+          onClick={cycleWallCutoffMode}
+          title="Toggle Wall Cutoff: Auto Orbit Cutoff / Cut Off All / Full Walls"
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all active:scale-95 ${
+            wallCutoffMode === 'auto'
+              ? 'bg-indigo-950/60 border-indigo-700/60 text-indigo-300 hover:bg-indigo-900/60'
+              : wallCutoffMode === 'cutoff'
+              ? 'bg-amber-950/60 border-amber-700/60 text-amber-300 hover:bg-amber-900/60'
+              : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span>
+            {wallCutoffMode === 'auto'
+              ? 'Walls: Auto Cutoff'
+              : wallCutoffMode === 'cutoff'
+              ? 'Walls: Cut Off'
+              : 'Walls: Full'}
+          </span>
+        </button>
 
         {/* Reset Camera Button */}
         <button

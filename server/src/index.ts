@@ -152,8 +152,8 @@ const gameServer = new Server({
   })
 });
 
-// Register Classroom Colyseus Room
-gameServer.define('classroom', ClassroomRoom);
+// Register Classroom Colyseus Room with classroomId filtering
+gameServer.define('classroom', ClassroomRoom).filterBy(['classroomId']);
 
 server.listen(port, () => {
   console.log(`=======================================================`);

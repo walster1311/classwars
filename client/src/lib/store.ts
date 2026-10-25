@@ -61,6 +61,7 @@ interface ClassroomState {
   // UI state
   activeTab: 'chat' | 'announcements' | 'queue';
   isTeacherModalOpen: boolean;
+  wallCutoffMode: 'auto' | 'cutoff' | 'raised';
   cameraResetNonce: number;
   toast: { message: string; type: 'info' | 'error' | 'success' } | null;
   activeReaction: { emoji: string; sessionId: string; id: number } | null;
@@ -84,6 +85,8 @@ interface ClassroomState {
   setMode: (mode: ClassroomMode) => void;
   setChatLocked: (locked: boolean) => void;
   setBoardState: (topic: string, slide: number) => void;
+  setWallCutoffMode: (mode: 'auto' | 'cutoff' | 'raised') => void;
+  cycleWallCutoffMode: () => void;
   setActiveTab: (tab: 'chat' | 'announcements' | 'queue') => void;
   setTeacherModalOpen: (open: boolean) => void;
   triggerCameraReset: () => void;
@@ -123,6 +126,7 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
 
   activeTab: 'chat',
   isTeacherModalOpen: false,
+  wallCutoffMode: 'auto',
   cameraResetNonce: 0,
   toast: null,
   activeReaction: null,
@@ -215,6 +219,22 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
   setMode: (mode) => set({ mode }),
   setChatLocked: (locked) => set({ isChatLocked: locked }),
   setBoardState: (topic, slide) => set({ boardTopic: topic, boardSlide: slide }),
+  setWallCutoffMode: (mode) => set({ wallCutoffMode: mode }),
+  cycleWallCutoffMode: () => set((state) => {
+    const cycleMap: Record<'auto' | 'cutoff' | 'raised', 'auto' | 'cutoff' | 'raised'> = {
+      auto: 'cutoff',
+      cutoff: 'raised',
+      raised: 'auto'
+    };
+    const nextMode = cycleMap[state.wallCutoffMode];
+    const labels = {
+      auto: 'Auto Orbit Cutoff',
+      cutoff: 'All Walls Cut Off',
+      raised: 'Full Walls'
+    };
+    get().showToast(`Wall view: ${labels[nextMode]}`, 'info');
+    return { wallCutoffMode: nextMode };
+  }),
   setActiveTab: (tab) => set({ activeTab: tab }),
   setTeacherModalOpen: (open) => set({ isTeacherModalOpen: open }),
   triggerCameraReset: () => set((state) => ({ cameraResetNonce: state.cameraResetNonce + 1 })),
