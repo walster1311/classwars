@@ -404,9 +404,8 @@ export function TeacherDeskMesh() {
           {/* Bulb */}
           <mesh position={[0, -0.05, 0]}>
             <sphereGeometry args={[0.035, 12, 12]} />
-            <meshStandardMaterial color="#fef08a" emissive="#fef08a" emissiveIntensity={1.5} />
+            <meshStandardMaterial color="#fef08a" roughness={0.4} />
           </mesh>
-          <pointLight color="#fef08a" intensity={0.8} distance={2.5} />
         </group>
       </group>
 

@@ -13,8 +13,7 @@ import { SmartBoard } from './props/SmartBoard';
 import {
   TeacherDeskMesh,
   DetailedBookshelf,
-  BulletinBoardMesh,
-  SuspendedCeilingLamps
+  BulletinBoardMesh
 } from './props/ClassroomFurniture';
 
 export function ClassroomScene() {
@@ -105,11 +104,11 @@ export function ClassroomScene() {
   return (
     <group>
       {/* ================= LIGHTING & ATMOSPHERE ================= */}
-      <ambientLight intensity={0.65} color="#f8fafc" />
+      <ambientLight intensity={0.8} color="#f8fafc" />
       {/* Warm natural sunbeam light casting from windows */}
       <directionalLight
         position={[-14, 18, -4]}
-        intensity={1.35}
+        intensity={1.25}
         color="#fffbeb"
         castShadow
         shadow-mapSize-width={2048}
@@ -123,10 +122,7 @@ export function ClassroomScene() {
         shadow-bias={-0.0004}
       />
       {/* Fill bounce light from front right */}
-      <directionalLight position={[10, 10, 8]} intensity={0.35} color="#93c5fd" />
-
-      {/* Suspended Ceiling Light Fixtures */}
-      <SuspendedCeilingLamps />
+      <directionalLight position={[10, 10, 8]} intensity={0.4} color="#93c5fd" />
 
       {/* ================= FLOOR ARCHITECTURE ================= */}
       {/* Polished Hardwood Plank Classroom Floor */}
