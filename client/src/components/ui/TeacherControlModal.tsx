@@ -105,7 +105,57 @@ export function TeacherControlModal() {
             </div>
           </div>
 
-          {/* Section 2: Quick Audio & Chat Actions */}
+          {/* Section 2: Smart Presentation Board Controls */}
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
+              Interactive Presentation Screen
+            </label>
+            <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-300 font-medium">Lesson Topic:</span>
+                <div className="flex items-center gap-1.5">
+                  {(['biology', 'physics', 'chemistry'] as const).map((topic) => (
+                    <button
+                      key={topic}
+                      onClick={() => {
+                        colyseusService.sendChangeBoardTopic(topic);
+                        showToast(`Board topic switched to ${topic.toUpperCase()}`, 'info');
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase bg-slate-700 hover:bg-indigo-600 text-slate-200 hover:text-white transition-colors"
+                    >
+                      {topic}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1 border-t border-slate-700/60">
+                <span className="text-xs text-slate-300 font-medium">Slide Controls:</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const cur = useClassroomStore.getState().boardSlide;
+                      colyseusService.sendChangeBoardSlide(Math.max(0, cur - 1));
+                    }}
+                    className="px-2.5 py-1 rounded bg-slate-700 hover:bg-slate-600 text-xs font-semibold text-white"
+                  >
+                    ◀ Prev Slide
+                  </button>
+                  <button
+                    onClick={() => {
+                      const cur = useClassroomStore.getState().boardSlide;
+                      colyseusService.sendChangeBoardSlide(cur + 1);
+                    }}
+                    className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white"
+                  >
+                    Next Slide ▶
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Quick Audio & Chat Actions */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
               Classroom Governance Actions

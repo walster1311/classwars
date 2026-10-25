@@ -332,6 +332,29 @@ export class ClassroomRoom extends Room<ClassroomState> {
         targetClient.leave(4001); // 4001: Kicked by teacher
       }
     });
+
+    // 15. Change Smart Board Slide (Teacher only)
+    this.onMessage(MSG_TYPES.CHANGE_BOARD_SLIDE, (client, data: { slide: number }) => {
+      const teacher = this.state.players.get(client.sessionId);
+      if (!teacher || teacher.role !== 'teacher') {
+        client.send('error', { message: 'Only the teacher can control the presentation board.' });
+        return;
+      }
+      this.state.boardSlide = Math.max(0, Math.min(5, Number(data.slide) || 0));
+      this.broadcast('board_slide_changed', { slide: this.state.boardSlide });
+    });
+
+    // 16. Change Smart Board Topic (Teacher only)
+    this.onMessage(MSG_TYPES.CHANGE_BOARD_TOPIC, (client, data: { topic: string }) => {
+      const teacher = this.state.players.get(client.sessionId);
+      if (!teacher || teacher.role !== 'teacher') {
+        client.send('error', { message: 'Only the teacher can change the board topic.' });
+        return;
+      }
+      this.state.boardTopic = data.topic || 'biology';
+      this.state.boardSlide = 0; // reset to first slide on topic switch
+      this.broadcast('board_topic_changed', { topic: this.state.boardTopic, slide: 0 });
+    });
   }
 
   onJoin(client: Client, options: JoinOptions) {

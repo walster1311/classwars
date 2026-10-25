@@ -60,6 +60,10 @@ class ColyseusService {
         mode: (this.room.state.mode as ClassroomMode) || 'lecture',
         isChatLocked: this.room.state.isChatLocked || false
       });
+      store.setBoardState(
+        this.room.state.boardTopic || 'biology',
+        this.room.state.boardSlide || 0
+      );
 
       this.setupRoomListeners(this.room);
 
@@ -170,9 +174,22 @@ class ColyseusService {
         mode: room.state.mode as ClassroomMode,
         isChatLocked: room.state.isChatLocked
       });
+      useClassroomStore.getState().setBoardState(
+        room.state.boardTopic || 'biology',
+        room.state.boardSlide || 0
+      );
     });
 
     // 5. Custom events from server
+    room.onMessage('board_slide_changed', (payload: { slide: number }) => {
+      const currentTopic = useClassroomStore.getState().boardTopic;
+      useClassroomStore.getState().setBoardState(currentTopic, payload.slide);
+    });
+
+    room.onMessage('board_topic_changed', (payload: { topic: string; slide: number }) => {
+      useClassroomStore.getState().setBoardState(payload.topic, payload.slide);
+      useClassroomStore.getState().showToast(`Lesson topic updated to ${payload.topic.toUpperCase()}`, 'info');
+    });
     room.onMessage('error', (payload: { message: string }) => {
       useClassroomStore.getState().showToast(payload.message, 'error');
     });
@@ -311,6 +328,16 @@ class ColyseusService {
   sendReaction(emoji: string) {
     if (!this.room) return;
     this.room.send(MSG_TYPES.REACTION, { emoji });
+  }
+
+  sendChangeBoardSlide(slide: number) {
+    if (!this.room) return;
+    this.room.send(MSG_TYPES.CHANGE_BOARD_SLIDE, { slide });
+  }
+
+  sendChangeBoardTopic(topic: string) {
+    if (!this.room) return;
+    this.room.send(MSG_TYPES.CHANGE_BOARD_TOPIC, { topic });
   }
 
   disconnect() {

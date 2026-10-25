@@ -49,6 +49,8 @@ export class ClassroomState extends Schema {
   @type('string') teacherId: string = '';
   @type('string') mode: string = 'lecture';
   @type('boolean') isChatLocked: boolean = false;
+  @type('string') boardTopic: string = 'biology';
+  @type('number') boardSlide: number = 0;
   @type('number') sessionStartTime: number = Date.now();
   @type('boolean') isSessionActive: boolean = true;
 

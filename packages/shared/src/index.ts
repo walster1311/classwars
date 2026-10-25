@@ -99,7 +99,9 @@ export const MSG_TYPES = {
   MUTE_ALL: 'mute_all',
   TOGGLE_CHAT_LOCK: 'toggle_chat_lock',
   KICK_PARTICIPANT: 'kick_participant',
-  REACTION: 'reaction'
+  REACTION: 'reaction',
+  CHANGE_BOARD_SLIDE: 'change_board_slide',
+  CHANGE_BOARD_TOPIC: 'change_board_topic'
 } as const;
 
 export * from './schema';

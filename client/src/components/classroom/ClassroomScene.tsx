@@ -1,13 +1,20 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
-import { CLASSROOM_SEATS, CLASSROOM_BOUNDS } from '@classverse/shared';
+import { CLASSROOM_SEATS } from '@classverse/shared';
 import { SeatStation } from './SeatStation';
 import { Avatar } from './Avatar';
 import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
+import { SmartBoard } from './props/SmartBoard';
+import {
+  TeacherDeskMesh,
+  DetailedBookshelf,
+  BulletinBoardMesh,
+  SuspendedCeilingLamps
+} from './props/ClassroomFurniture';
 
 interface ClassroomSceneProps {
   onFloorClick?: (point: THREE.Vector3) => void;
@@ -19,10 +26,8 @@ export function ClassroomScene({ onFloorClick }: ClassroomSceneProps) {
   const mySeatId = useClassroomStore((s) => s.mySeatId);
 
   const handleFloorPointerDown = (e: any) => {
-    // Only trigger if click directly hits the floor plane
     e.stopPropagation();
     if (mySeatId) {
-      // If sitting, user should click Stand Up first, or auto stand
       colyseusService.sendStand();
     }
     if (e.point && onFloorClick) {
@@ -32,11 +37,12 @@ export function ClassroomScene({ onFloorClick }: ClassroomSceneProps) {
 
   return (
     <group>
-      {/* ================= LIGHTING ================= */}
-      <ambientLight intensity={0.7} color="#f8fafc" />
+      {/* ================= LIGHTING & ATMOSPHERE ================= */}
+      <ambientLight intensity={0.65} color="#f8fafc" />
+      {/* Warm natural sunbeam light casting from windows */}
       <directionalLight
-        position={[-12, 18, -6]}
-        intensity={1.2}
+        position={[-14, 18, -4]}
+        intensity={1.35}
         color="#fffbeb"
         castShadow
         shadow-mapSize-width={2048}
@@ -47,20 +53,16 @@ export function ClassroomScene({ onFloorClick }: ClassroomSceneProps) {
         shadow-camera-right={12}
         shadow-camera-top={12}
         shadow-camera-bottom={-12}
-        shadow-bias={-0.0005}
+        shadow-bias={-0.0004}
       />
-      {/* Front spotlight on presentation board */}
-      <spotLight
-        position={[0, 7, -2]}
-        target-position={[0, 2, -6.8]}
-        intensity={0.6}
-        angle={0.6}
-        penumbra={0.5}
-        color="#ffffff"
-      />
+      {/* Fill bounce light from front right */}
+      <directionalLight position={[10, 10, 8]} intensity={0.35} color="#93c5fd" />
 
-      {/* ================= FLOOR ================= */}
-      {/* Main Wood Plank Classroom Floor */}
+      {/* Suspended Ceiling Light Fixtures */}
+      <SuspendedCeilingLamps />
+
+      {/* ================= FLOOR ARCHITECTURE ================= */}
+      {/* Polished Hardwood Plank Classroom Floor */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.01, 0]}
@@ -68,289 +70,227 @@ export function ClassroomScene({ onFloorClick }: ClassroomSceneProps) {
         onPointerDown={handleFloorPointerDown}
       >
         <planeGeometry args={[16.2, 14.2]} />
-        <meshStandardMaterial color="#d4a373" roughness={0.35} metalness={0.05} />
+        <meshStandardMaterial color="#c29b69" roughness={0.3} metalness={0.06} />
       </mesh>
 
-      {/* Outer border trim */}
-      <mesh position={[0, 0.05, 0]}>
-        <boxGeometry args={[16.5, 0.1, 0.15]} />
-        <meshStandardMaterial color="#78350f" />
+      {/* Architectural Baseboard Molding along Floor Perimeter */}
+      <mesh position={[0, 0.08, -6.95]}>
+        <boxGeometry args={[16.2, 0.16, 0.08]} />
+        <meshStandardMaterial color="#451a03" roughness={0.4} />
+      </mesh>
+      <mesh position={[-8.05, 0.08, 0]}>
+        <boxGeometry args={[0.08, 0.16, 14.2]} />
+        <meshStandardMaterial color="#451a03" roughness={0.4} />
+      </mesh>
+      <mesh position={[8.05, 0.08, 0]}>
+        <boxGeometry args={[0.08, 0.16, 14.2]} />
+        <meshStandardMaterial color="#451a03" roughness={0.4} />
       </mesh>
 
-      {/* ================= WALLS ================= */}
+      {/* ================= WALL ARCHITECTURE ================= */}
       {/* Front Wall (Z = -7.0) */}
       <mesh position={[0, 2.5, -7.0]} receiveShadow>
         <boxGeometry args={[16.2, 5.0, 0.2]} />
-        <meshStandardMaterial color="#f1f5f9" roughness={0.7} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} />
       </mesh>
-      {/* Wainscoting on Front Wall */}
-      <mesh position={[0, 0.6, -6.89]}>
-        <boxGeometry args={[16.2, 1.2, 0.05]} />
-        <meshStandardMaterial color="#cbd5e1" roughness={0.5} />
+      {/* Classic Architectural Wainscoting Panel on Front Wall */}
+      <mesh position={[0, 0.65, -6.89]}>
+        <boxGeometry args={[16.2, 1.3, 0.04]} />
+        <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
       </mesh>
 
-      {/* Left Wall (X = -8.1) */}
+      {/* Left Wall with Windows (X = -8.1) */}
       <mesh position={[-8.1, 2.5, 0]} receiveShadow>
         <boxGeometry args={[0.2, 5.0, 14.2]} />
-        <meshStandardMaterial color="#f1f5f9" roughness={0.7} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} />
+      </mesh>
+      {/* Left Wall Wainscoting */}
+      <mesh position={[-7.99, 0.65, 0]}>
+        <boxGeometry args={[0.04, 1.3, 14.2]} />
+        <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
       </mesh>
 
-      {/* Right Wall (X = 8.1) */}
+      {/* Right Wall with Bookshelves (X = 8.1) */}
       <mesh position={[8.1, 2.5, 0]} receiveShadow>
         <boxGeometry args={[0.2, 5.0, 14.2]} />
-        <meshStandardMaterial color="#f1f5f9" roughness={0.7} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} />
+      </mesh>
+      {/* Right Wall Wainscoting */}
+      <mesh position={[7.99, 0.65, 0]}>
+        <boxGeometry args={[0.04, 1.3, 14.2]} />
+        <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
       </mesh>
 
-      {/* Back Wall (Z = 7.1) with doorway cutout */}
+      {/* Back Wall (Z = 7.1) with Entry Door cutout */}
       <mesh position={[-4.5, 2.5, 7.1]} receiveShadow>
         <boxGeometry args={[7.2, 5.0, 0.2]} />
-        <meshStandardMaterial color="#f1f5f9" roughness={0.7} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} />
       </mesh>
       <mesh position={[4.5, 2.5, 7.1]} receiveShadow>
         <boxGeometry args={[7.2, 5.0, 0.2]} />
-        <meshStandardMaterial color="#f1f5f9" roughness={0.7} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} />
       </mesh>
-      <mesh position={[0, 4.2, 7.1]} receiveShadow>
-        <boxGeometry args={[2.0, 1.6, 0.2]} />
-        <meshStandardMaterial color="#f1f5f9" roughness={0.7} />
+      <mesh position={[0, 4.3, 7.1]} receiveShadow>
+        <boxGeometry args={[2.0, 1.4, 0.2]} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} />
       </mesh>
 
-      {/* Classroom Door Frame & Door (Back Wall) */}
-      <group position={[0, 1.6, 7.0]}>
-        {/* Door Frame */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[2.0, 3.2, 0.15]} />
-          <meshStandardMaterial color="#78350f" />
+      {/* Classroom Door Frame & Paneled Door (Back Wall) */}
+      <group position={[0, 1.7, 7.0]}>
+        {/* Outer Frame */}
+        <mesh position={[0, 0, 0]} castShadow>
+          <boxGeometry args={[2.0, 3.4, 0.16]} />
+          <meshStandardMaterial color="#582f0e" roughness={0.4} />
         </mesh>
-        {/* Door Panel */}
+        {/* Door Slab */}
         <mesh position={[0, 0, 0.02]}>
-          <boxGeometry args={[1.8, 3.0, 0.08]} />
-          <meshStandardMaterial color="#9a3412" roughness={0.4} />
+          <boxGeometry args={[1.82, 3.2, 0.08]} />
+          <meshStandardMaterial color="#78350f" roughness={0.4} />
         </mesh>
-        {/* Door Window */}
-        <mesh position={[0, 0.6, 0.04]}>
-          <boxGeometry args={[0.8, 1.0, 0.06]} />
-          <meshStandardMaterial color="#e0f2fe" roughness={0.1} transparent opacity={0.7} />
+        {/* Inset Frosted Vision Glass */}
+        <mesh position={[0, 0.65, 0.04]}>
+          <boxGeometry args={[0.7, 1.1, 0.04]} />
+          <meshStandardMaterial color="#e0f2fe" roughness={0.15} transparent opacity={0.75} />
         </mesh>
-        {/* Brass Door Handle */}
-        <mesh position={[0.65, -0.1, 0.08]}>
-          <boxGeometry args={[0.08, 0.22, 0.08]} />
-          <meshStandardMaterial color="#fbbf24" metalness={0.8} roughness={0.2} />
+        {/* Brass Commercial Lever Handle */}
+        <mesh position={[0.68, -0.05, 0.08]} castShadow>
+          <boxGeometry args={[0.14, 0.03, 0.06]} />
+          <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.15} />
+        </mesh>
+        <mesh position={[0.62, -0.05, 0.06]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.02, 0.02, 0.04, 12]} />
+          <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.15} />
         </mesh>
       </group>
 
-      {/* ================= FRONT CHALKBOARD / SCREEN ================= */}
-      <group position={[0, 2.4, -6.85]}>
-        {/* Wooden Frame */}
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[9.4, 2.6, 0.1]} />
-          <meshStandardMaterial color="#78350f" roughness={0.6} />
-        </mesh>
-        {/* Slate Blackboard */}
-        <mesh position={[0, 0, 0.06]}>
-          <boxGeometry args={[9.0, 2.2, 0.02]} />
-          <meshStandardMaterial color="#1e293b" roughness={0.9} />
-        </mesh>
-        {/* Chalk Ledge */}
-        <mesh position={[0, -1.15, 0.15]} castShadow>
-          <boxGeometry args={[9.0, 0.08, 0.22]} />
-          <meshStandardMaterial color="#78350f" />
-        </mesh>
-        {/* Chalk Sticks & Eraser */}
-        <mesh position={[-2.0, -1.08, 0.15]}>
-          <boxGeometry args={[0.2, 0.04, 0.1]} />
-          <meshStandardMaterial color="#f8fafc" />
-        </mesh>
-        <mesh position={[-1.5, -1.08, 0.15]}>
-          <boxGeometry args={[0.35, 0.06, 0.12]} />
-          <meshStandardMaterial color="#475569" />
-        </mesh>
+      {/* ================= SMART HYBRID BLACKBOARD & SCREEN ================= */}
+      <SmartBoard />
 
-        {/* Board Title & Educational Text */}
-        <Text
-          position={[0, 0.7, 0.09]}
-          fontSize={0.28}
-          color="#38bdf8"
-          anchorX="center"
-          anchorY="middle"
-        >
-          BIOLOGY 101: CELL DIVISION & MITOSIS
-        </Text>
-        <Text
-          position={[-3.0, 0.1, 0.09]}
-          fontSize={0.17}
-          color="#f8fafc"
-          anchorX="left"
-          anchorY="middle"
-        >
-          {"• Prophase: Chromatin condenses into chromosomes\n• Metaphase: Chromosomes align along equator\n• Anaphase: Sister chromatids pull apart\n• Telophase: Nuclear membrane reforms"}
-        </Text>
-      </group>
-
-      {/* Wall Clock above Blackboard */}
-      <group position={[0, 4.1, -6.85]}>
+      {/* Wall Clock above SmartBoard */}
+      <group position={[0, 4.2, -6.85]}>
         <mesh castShadow rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.42, 0.42, 0.08, 32]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.3} />
+          <cylinderGeometry args={[0.44, 0.44, 0.08, 32]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.6} />
         </mesh>
         <mesh position={[0, 0, 0.04]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.38, 0.38, 0.02, 32]} />
+          <cylinderGeometry args={[0.4, 0.4, 0.02, 32]} />
           <meshStandardMaterial color="#ffffff" />
         </mesh>
-        {/* Clock Hands */}
-        <mesh position={[0, 0.1, 0.06]}>
-          <boxGeometry args={[0.03, 0.22, 0.02]} />
+        {/* Clock Dials & Hands */}
+        <mesh position={[0, 0.12, 0.06]}>
+          <boxGeometry args={[0.03, 0.24, 0.02]} />
           <meshBasicMaterial color="#0f172a" />
         </mesh>
-        <mesh position={[0.07, 0, 0.06]} rotation={[0, 0, -Math.PI / 2]}>
-          <boxGeometry args={[0.02, 0.28, 0.02]} />
+        <mesh position={[0.08, 0, 0.06]} rotation={[0, 0, -Math.PI / 2]}>
+          <boxGeometry args={[0.02, 0.3, 0.02]} />
           <meshBasicMaterial color="#0f172a" />
+        </mesh>
+        <mesh position={[0, 0, 0.065]}>
+          <sphereGeometry args={[0.025, 12, 12]} />
+          <meshStandardMaterial color="#ef4444" />
         </mesh>
       </group>
 
-      {/* ================= LEFT WALL WINDOWS (Sunlight) ================= */}
+      {/* ================= LEFT WALL SUNLIT WINDOWS ================= */}
       {[-3.0, 2.0].map((zPos, idx) => (
-        <group key={`window-${idx}`} position={[-7.95, 2.6, zPos]} rotation={[0, Math.PI / 2, 0]}>
-          {/* Outer Frame */}
-          <mesh>
-            <boxGeometry args={[3.2, 2.4, 0.1]} />
-            <meshStandardMaterial color="#ffffff" />
+        <group key={`win-${idx}`} position={[-7.95, 2.6, zPos]} rotation={[0, Math.PI / 2, 0]}>
+          {/* Heavy Architectural Exterior Frame */}
+          <mesh castShadow>
+            <boxGeometry args={[3.4, 2.5, 0.12]} />
+            <meshStandardMaterial color="#f8fafc" roughness={0.3} />
           </mesh>
-          {/* Glass */}
+          {/* Glass Pane */}
           <mesh position={[0, 0, 0.02]}>
-            <boxGeometry args={[3.0, 2.2, 0.02]} />
-            <meshStandardMaterial color="#bae6fd" transparent opacity={0.65} roughness={0.1} />
+            <boxGeometry args={[3.2, 2.3, 0.02]} />
+            <meshStandardMaterial color="#bae6fd" transparent opacity={0.6} roughness={0.1} />
           </mesh>
-          {/* Window Panes Grid */}
+          {/* Window Mullions Grid */}
           <mesh position={[0, 0, 0.04]}>
-            <boxGeometry args={[3.0, 0.06, 0.04]} />
-            <meshStandardMaterial color="#ffffff" />
-          </mesh>
-          <mesh position={[0, 0, 0.04]}>
-            <boxGeometry args={[0.06, 2.2, 0.04]} />
-            <meshStandardMaterial color="#ffffff" />
-          </mesh>
-          {/* Window Sill */}
-          <mesh position={[0, -1.25, 0.1]} castShadow>
-            <boxGeometry args={[3.4, 0.1, 0.3]} />
+            <boxGeometry args={[3.2, 0.06, 0.04]} />
             <meshStandardMaterial color="#f8fafc" />
           </mesh>
-          {/* Potted Plant on Sill */}
-          <mesh position={[0.9, -1.05, 0.1]} castShadow>
-            <cylinderGeometry args={[0.15, 0.1, 0.22, 16]} />
-            <meshStandardMaterial color="#b45309" />
+          <mesh position={[0, 0, 0.04]}>
+            <boxGeometry args={[0.06, 2.3, 0.04]} />
+            <meshStandardMaterial color="#f8fafc" />
           </mesh>
-          <mesh position={[0.9, -0.85, 0.1]}>
-            <sphereGeometry args={[0.18, 8, 8]} />
-            <meshStandardMaterial color="#15803d" />
+          {/* Window Sill with Wood Plank Top */}
+          <mesh position={[0, -1.3, 0.12]} castShadow receiveShadow>
+            <boxGeometry args={[3.6, 0.12, 0.38]} />
+            <meshStandardMaterial color="#78350f" roughness={0.4} />
           </mesh>
+
+          {/* Venetian Blinds Header & Slats */}
+          <group position={[0, 1.15, 0.06]}>
+            <mesh>
+              <boxGeometry args={[3.2, 0.08, 0.06]} />
+              <meshStandardMaterial color="#cbd5e1" />
+            </mesh>
+            {/* Partially Tilted Horizontal Blinds */}
+            {Array.from({ length: 14 }).map((_, bIdx) => (
+              <mesh key={`blind-${bIdx}`} position={[0, -bIdx * 0.15 - 0.08, 0.02]} rotation={[0.4, 0, 0]}>
+                <boxGeometry args={[3.15, 0.04, 0.005]} />
+                <meshStandardMaterial color="#f1f5f9" roughness={0.5} />
+              </mesh>
+            ))}
+          </group>
+
+          {/* Terra Cotta Potted Plants on Window Sill */}
+          <group position={[1.1, -1.08, 0.16]}>
+            <mesh castShadow>
+              <cylinderGeometry args={[0.16, 0.11, 0.24, 16]} />
+              <meshStandardMaterial color="#c2410c" roughness={0.8} />
+            </mesh>
+            {/* Lush Foliage */}
+            <mesh position={[0, 0.2, 0]}>
+              <sphereGeometry args={[0.22, 12, 12]} />
+              <meshStandardMaterial color="#15803d" roughness={0.4} />
+            </mesh>
+          </group>
         </group>
       ))}
 
-      {/* ================= RIGHT WALL BOOKSHELVES ================= */}
-      <group position={[7.8, 1.8, 0]}>
-        {/* Tall Bookshelf Unit */}
-        <mesh position={[0, 0, 0]} castShadow>
-          <boxGeometry args={[0.45, 3.4, 4.2]} />
-          <meshStandardMaterial color="#582f0e" roughness={0.5} />
-        </mesh>
-        {/* Shelves */}
-        {[-1.1, -0.3, 0.5, 1.3].map((yOff, i) => (
-          <mesh key={`shelf-${i}`} position={[-0.05, yOff, 0]}>
-            <boxGeometry args={[0.4, 0.05, 4.0]} />
-            <meshStandardMaterial color="#7f4f24" />
-          </mesh>
-        ))}
-        {/* Books rows */}
-        <mesh position={[-0.05, -0.85, 0]}>
-          <boxGeometry args={[0.3, 0.45, 3.6]} />
-          <meshStandardMaterial color="#1e40af" />
-        </mesh>
-        <mesh position={[-0.05, -0.05, -0.2]}>
-          <boxGeometry args={[0.3, 0.45, 3.0]} />
-          <meshStandardMaterial color="#b91c1c" />
-        </mesh>
-        <mesh position={[-0.05, 0.75, 0.3]}>
-          <boxGeometry args={[0.3, 0.45, 2.8]} />
-          <meshStandardMaterial color="#047857" />
-        </mesh>
-      </group>
+      {/* ================= CORK BULLETIN BOARD ================= */}
+      <BulletinBoardMesh />
 
-      {/* Wall Posters */}
-      <group position={[7.95, 2.6, -3.5]} rotation={[0, -Math.PI / 2, 0]}>
-        <mesh>
-          <boxGeometry args={[1.6, 2.0, 0.02]} />
-          <meshStandardMaterial color="#0284c7" />
+      {/* ================= DETAILED BOOKSHELVES UNIT ================= */}
+      <DetailedBookshelf />
+
+      {/* Framed Science Wall Poster */}
+      <group position={[7.95, 2.6, -3.6]} rotation={[0, -Math.PI / 2, 0]}>
+        {/* Black Poster Frame */}
+        <mesh castShadow>
+          <boxGeometry args={[1.7, 2.1, 0.04]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.3} />
         </mesh>
-        <Text position={[0, 0.6, 0.03]} fontSize={0.16} color="#ffffff">
-          PERIODIC TABLE
+        {/* Poster Paper */}
+        <mesh position={[0, 0, 0.02]}>
+          <boxGeometry args={[1.6, 2.0, 0.01]} />
+          <meshStandardMaterial color="#0284c7" roughness={0.6} />
+        </mesh>
+        <Text position={[0, 0.7, 0.03]} fontSize={0.16} color="#ffffff" anchorX="center">
+          PERIODIC TABLE OF ELEMENTS
+        </Text>
+        <Text
+          position={[0, 0.1, 0.03]}
+          fontSize={0.09}
+          color="#e0f2fe"
+          anchorX="center"
+          maxWidth={1.4}
+          lineHeight={1.3}
+        >
+          {"H  He  Li  Be  B  C  N  O  F  Ne\nNa  Mg  Al  Si  P  S  Cl  Ar\nK  Ca  Sc  Ti  V  Cr  Mn  Fe"}
         </Text>
       </group>
 
-      {/* ================= TEACHER DESK & PODIUM ================= */}
-      <group position={[0, 0, -4.5]}>
-        {/* Large Teacher Desk */}
-        <mesh position={[0, 0.76, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2.4, 0.08, 1.1]} />
-          <meshStandardMaterial color="#78350f" roughness={0.4} />
-        </mesh>
-        {/* Desk Cabinets & Legs */}
-        <mesh position={[-0.95, 0.38, 0]} castShadow>
-          <boxGeometry args={[0.45, 0.76, 0.95]} />
-          <meshStandardMaterial color="#582f0e" />
-        </mesh>
-        <mesh position={[0.95, 0.38, 0]} castShadow>
-          <boxGeometry args={[0.45, 0.76, 0.95]} />
-          <meshStandardMaterial color="#582f0e" />
-        </mesh>
-        <mesh position={[0, 0.55, -0.42]} castShadow>
-          <boxGeometry args={[1.5, 0.4, 0.05]} />
-          <meshStandardMaterial color="#582f0e" />
-        </mesh>
+      {/* ================= EXECUTIVE TEACHER DESK ================= */}
+      <TeacherDeskMesh />
 
-        {/* Teacher Laptop */}
-        <group position={[-0.45, 0.81, 0.1]} rotation={[0, -0.2, 0]}>
-          {/* Base */}
-          <mesh castShadow>
-            <boxGeometry args={[0.36, 0.02, 0.28]} />
-            <meshStandardMaterial color="#64748b" metalness={0.6} />
-          </mesh>
-          {/* Screen tilted up */}
-          <mesh position={[0, 0.14, -0.12]} rotation={[-0.3, 0, 0]} castShadow>
-            <boxGeometry args={[0.36, 0.26, 0.015]} />
-            <meshStandardMaterial color="#334155" />
-          </mesh>
-          {/* Glowing screen display */}
-          <mesh position={[0, 0.14, -0.11]} rotation={[-0.3, 0, 0]}>
-            <boxGeometry args={[0.33, 0.23, 0.005]} />
-            <meshBasicMaterial color="#38bdf8" />
-          </mesh>
-        </group>
-
-        {/* Teacher Coffee Mug */}
-        <mesh position={[0.45, 0.87, 0.2]} castShadow>
-          <cylinderGeometry args={[0.06, 0.06, 0.12, 16]} />
-          <meshStandardMaterial color="#ef4444" roughness={0.2} />
-        </mesh>
-
-        {/* Stack of Textbooks & Apple */}
-        <mesh position={[0.75, 0.86, -0.1]} castShadow>
-          <boxGeometry args={[0.3, 0.12, 0.4]} />
-          <meshStandardMaterial color="#1d4ed8" />
-        </mesh>
-        {/* Apple on books */}
-        <mesh position={[0.75, 0.96, -0.1]} castShadow>
-          <sphereGeometry args={[0.06, 12, 12]} />
-          <meshStandardMaterial color="#dc2626" roughness={0.3} />
-        </mesh>
-      </group>
-
-      {/* ================= ALL SEATS (1 Teacher Desk + 12 Student Desks) ================= */}
+      {/* ================= ALL SEATS (1 Teacher Swivel Chair + 12 Student Desks & Chairs) ================= */}
       {CLASSROOM_SEATS.map((seat) => (
         <SeatStation key={seat.id} seat={seat} />
       ))}
 
-      {/* ================= ALL CONNECTED AVATARS ================= */}
+      {/* ================= SYNCHRONIZED PLAYER AVATARS ================= */}
       {Object.values(players).map((player) => (
         <Avatar
           key={player.sessionId}

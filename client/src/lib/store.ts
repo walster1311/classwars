@@ -47,6 +47,8 @@ interface ClassroomState {
   classroomTitle: string;
   mode: ClassroomMode;
   isChatLocked: boolean;
+  boardTopic: string;
+  boardSlide: number;
   isConnected: boolean;
   isReconnecting: boolean;
 
@@ -81,6 +83,7 @@ interface ClassroomState {
   setCanSpeak: (can: boolean) => void;
   setMode: (mode: ClassroomMode) => void;
   setChatLocked: (locked: boolean) => void;
+  setBoardState: (topic: string, slide: number) => void;
   setActiveTab: (tab: 'chat' | 'announcements' | 'queue') => void;
   setTeacherModalOpen: (open: boolean) => void;
   triggerCameraReset: () => void;
@@ -108,6 +111,8 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
   classroomTitle: 'Biology Class: Cellular Biology',
   mode: 'lecture',
   isChatLocked: false,
+  boardTopic: 'biology',
+  boardSlide: 0,
   isConnected: false,
   isReconnecting: false,
 
@@ -209,6 +214,7 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
   setCanSpeak: (can) => set({ canSpeak: can }),
   setMode: (mode) => set({ mode }),
   setChatLocked: (locked) => set({ isChatLocked: locked }),
+  setBoardState: (topic, slide) => set({ boardTopic: topic, boardSlide: slide }),
   setActiveTab: (tab) => set({ activeTab: tab }),
   setTeacherModalOpen: (open) => set({ isTeacherModalOpen: open }),
   triggerCameraReset: () => set((state) => ({ cameraResetNonce: state.cameraResetNonce + 1 })),
