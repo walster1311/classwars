@@ -55,7 +55,7 @@ export interface ClassroomRoomMetadata {
 
 // Classroom Seat Layout (12 Student Desks + 1 Teacher Desk)
 export const CLASSROOM_SEATS: SeatInfo[] = [
-  { id: 'seat-teacher', name: "Teacher's Desk", x: 0, y: 0.45, z: -5.1, rotY: 0, row: 0, col: 0, isTeacherSeat: true },
+  { id: 'seat-teacher', name: "Teacher's Desk", x: 0, y: 0.45, z: -5.25, rotY: 0, row: 0, col: 0, isTeacherSeat: true },
   
   // Row 1
   { id: 'seat-1', name: 'Desk 1', x: -4.2, y: 0.45, z: -1.0, rotY: Math.PI, row: 1, col: 1 },

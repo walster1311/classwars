@@ -296,7 +296,7 @@ export function StudentDeskMesh({ hasLaptop = false }: StudentDeskProps) {
 // ==========================================
 export function TeacherDeskMesh() {
   return (
-    <group position={[0, 0, -4.5]}>
+    <group position={[0, 0, -4.5]} rotation={[0, Math.PI, 0]}>
       {/* Heavy Beveled Walnut Desktop */}
       <mesh position={[0, 0.78, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.6, 0.08, 1.25]} />
@@ -503,19 +503,19 @@ export function TeacherChairMesh({ isOccupied }: { isOccupied: boolean }) {
       </mesh>
 
       {/* Padded High-Back Lumbar Backrest */}
-      <mesh position={[0, 0.82, 0.22]} rotation={[-0.05, 0, 0]} castShadow>
+      <mesh position={[0, 0.82, -0.22]} rotation={[0.05, 0, 0]} castShadow>
         <boxGeometry args={[0.52, 0.65, 0.07]} />
         <meshStandardMaterial color="#0f172a" roughness={0.4} metalness={0.1} />
       </mesh>
       {/* Contoured Headrest */}
-      <mesh position={[0, 1.18, 0.2]} castShadow>
+      <mesh position={[0, 1.18, -0.2]} castShadow>
         <boxGeometry args={[0.34, 0.16, 0.08]} />
         <meshStandardMaterial color="#1e293b" roughness={0.4} />
       </mesh>
 
       {/* Padded Armrests */}
       {[-0.29, 0.29].map((x, i) => (
-        <group key={`armrest-${i}`} position={[x, 0.64, 0.04]}>
+        <group key={`armrest-${i}`} position={[x, 0.64, 0]}>
           <mesh castShadow>
             <boxGeometry args={[0.07, 0.03, 0.32]} />
             <meshStandardMaterial color="#0f172a" roughness={0.4} />
