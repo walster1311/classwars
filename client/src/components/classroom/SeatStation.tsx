@@ -46,7 +46,7 @@ export function SeatStation({ seat }: SeatStationProps) {
     : (isOccupied ? (isOccupiedByMe ? '#3B82F6' : '#64748b') : '#334155');
 
   return (
-    <group position={[seat.x, 0, seat.z]} rotation={[0, seat.rotY, 0]}>
+    <group position={[seat.x, 0, seat.z]} rotation={[0, seat.isTeacherSeat ? seat.rotY : 0, 0]}>
       {/* Interactive Chair Click Target */}
       <group
         onPointerOver={(e) => {
