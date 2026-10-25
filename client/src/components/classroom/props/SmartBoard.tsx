@@ -95,7 +95,11 @@ const SLIDES: Record<string, SlideContent[]> = {
   ]
 };
 
-export function SmartBoard() {
+interface SmartBoardProps {
+  position?: [number, number, number];
+}
+
+export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   const myRole = useClassroomStore((s) => s.myRole);
@@ -129,7 +133,7 @@ export function SmartBoard() {
   };
 
   return (
-    <group position={[0, 2.45, -6.85]}>
+    <group position={position}>
       {/* ================= ARCHITECTURAL FRAME & BACKING ================= */}
       {/* Outer Polished Hardwood Mounting Board */}
       <mesh castShadow receiveShadow position={[0, 0, -0.04]}>

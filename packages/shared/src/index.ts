@@ -53,34 +53,63 @@ export interface ClassroomRoomMetadata {
   createdAt: number;
 }
 
-// Classroom Seat Layout (12 Student Desks + 1 Teacher Desk)
-export const CLASSROOM_SEATS: SeatInfo[] = [
-  { id: 'seat-teacher', name: "Teacher's Desk", x: 0, y: 0.45, z: -5.25, rotY: 0, row: 0, col: 0, isTeacherSeat: true },
-  
-  // Row 1
-  { id: 'seat-1', name: 'Desk 1', x: -4.2, y: 0.45, z: -1.0, rotY: Math.PI, row: 1, col: 1 },
-  { id: 'seat-2', name: 'Desk 2', x: -1.4, y: 0.45, z: -1.0, rotY: Math.PI, row: 1, col: 2 },
-  { id: 'seat-3', name: 'Desk 3', x: 1.4, y: 0.45, z: -1.0, rotY: Math.PI, row: 1, col: 3 },
-  { id: 'seat-4', name: 'Desk 4', x: 4.2, y: 0.45, z: -1.0, rotY: Math.PI, row: 1, col: 4 },
+// Classroom Seat Layout (1 Teacher Desk + 100 Student Desks arranged in 10 rows x 10 columns)
+const generate100ClassroomSeats = (): SeatInfo[] => {
+  const seats: SeatInfo[] = [
+    {
+      id: 'seat-teacher',
+      name: "Teacher's Desk",
+      x: 0,
+      y: 0.45,
+      z: -11.25,
+      rotY: 0,
+      row: 0,
+      col: 0,
+      isTeacherSeat: true
+    }
+  ];
 
-  // Row 2
-  { id: 'seat-5', name: 'Desk 5', x: -4.2, y: 0.45, z: 1.5, rotY: Math.PI, row: 2, col: 1 },
-  { id: 'seat-6', name: 'Desk 6', x: -1.4, y: 0.45, z: 1.5, rotY: Math.PI, row: 2, col: 2 },
-  { id: 'seat-7', name: 'Desk 7', x: 1.4, y: 0.45, z: 1.5, rotY: Math.PI, row: 2, col: 3 },
-  { id: 'seat-8', name: 'Desk 8', x: 4.2, y: 0.45, z: 1.5, rotY: Math.PI, row: 2, col: 4 },
+  // 10 Columns arranged into 3 banks with 2 grand aisles:
+  // Left Bank (Cols 1-3), Center Bank (Cols 4-7), Right Bank (Cols 8-10)
+  const COL_X_COORDS = [
+    -9.2, -7.4, -5.6,     // Left bank
+    -3.0, -1.0, 1.0, 3.0, // Center bank
+    5.6, 7.4, 9.2         // Right bank
+  ];
 
-  // Row 3
-  { id: 'seat-9', name: 'Desk 9', x: -4.2, y: 0.45, z: 4.0, rotY: Math.PI, row: 3, col: 1 },
-  { id: 'seat-10', name: 'Desk 10', x: -1.4, y: 0.45, z: 4.0, rotY: Math.PI, row: 3, col: 2 },
-  { id: 'seat-11', name: 'Desk 11', x: 1.4, y: 0.45, z: 4.0, rotY: Math.PI, row: 3, col: 3 },
-  { id: 'seat-12', name: 'Desk 12', x: 4.2, y: 0.45, z: 4.0, rotY: Math.PI, row: 3, col: 4 }
-];
+  const ROW_Z_START = -6.5;
+  const ROW_Z_SPACING = 1.9;
+
+  let seatIndex = 1;
+  for (let r = 1; r <= 10; r++) {
+    const zPos = ROW_Z_START + (r - 1) * ROW_Z_SPACING;
+    for (let c = 1; c <= 10; c++) {
+      const xPos = COL_X_COORDS[c - 1];
+      seats.push({
+        id: `seat-${seatIndex}`,
+        name: `Desk ${seatIndex} (R${r}-C${c})`,
+        x: Number(xPos.toFixed(2)),
+        y: 0.45,
+        z: Number(zPos.toFixed(2)),
+        rotY: Math.PI, // Facing forward towards teacher and blackboard (-Z)
+        row: r,
+        col: c,
+        isTeacherSeat: false
+      });
+      seatIndex++;
+    }
+  }
+
+  return seats;
+};
+
+export const CLASSROOM_SEATS: SeatInfo[] = generate100ClassroomSeats();
 
 export const CLASSROOM_BOUNDS = {
-  minX: -7.5,
-  maxX: 7.5,
-  minZ: -6.5,
-  maxZ: 6.5
+  minX: -12.2,
+  maxX: 12.2,
+  minZ: -13.2,
+  maxZ: 13.8
 };
 
 // WebSocket Message Types between client and Colyseus

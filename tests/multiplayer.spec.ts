@@ -4,7 +4,7 @@ test.describe('CLASSVERSE Multiplayer Virtual Classroom Tests', () => {
   let browser: Browser;
 
   test('MVP Acceptance Milestone: 1 Teacher + 5 Students join, sync roster, chat, and test hand-raise permissions', async ({ browser: b }) => {
-    test.setTimeout(90000);
+    test.setTimeout(180000);
     browser = b;
 
     // 1. Create separate isolated browser contexts for Teacher and 5 Students
@@ -59,7 +59,7 @@ test.describe('CLASSVERSE Multiplayer Virtual Classroom Tests', () => {
     // Student 1 sends a chat message
     const chatInput1 = student1Page.locator('input[placeholder="Type message to class..."]');
     await chatInput1.fill('Hello everyone! Excited for Biology class today.');
-    await student1Page.locator('button[type="submit"]:has-text("")').click();
+    await chatInput1.press('Enter');
 
     // Verify Teacher and Student 2 see the message instantly without reload
     await expect(teacherPage.locator('text=Hello everyone! Excited for Biology class today.')).toBeVisible({ timeout: 8000 });

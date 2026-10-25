@@ -12,7 +12,7 @@ interface JoinOptions {
 }
 
 export class ClassroomRoom extends Room<ClassroomState> {
-  maxClients = 35;
+  maxClients = 120;
   private lastChatTimes = new Map<string, number>();
 
   onCreate(options: JoinOptions) {
@@ -375,15 +375,15 @@ export class ClassroomRoom extends Room<ClassroomState> {
       // Teacher spawns in front of presentation board / podium
       player.x = 0;
       player.y = 0;
-      player.z = -3.8;
+      player.z = -9.0;
       player.rotY = 0; // facing students (+Z)
     } else {
       // Students spawn near classroom door / back
       // Stagger slightly so multiple joining students don't overlap exactly
-      const offset = (this.state.players.size % 5) * 0.5 - 1.0;
+      const offset = (this.state.players.size % 9) * 0.8 - 3.2;
       player.x = offset;
       player.y = 0;
-      player.z = 5.6;
+      player.z = 12.5;
       player.rotY = Math.PI; // facing front (-Z)
       player.canSpeak = this.state.mode === 'discussion';
       player.isMuted = true;

@@ -108,165 +108,177 @@ export function ClassroomScene() {
       <ambientLight intensity={0.8} color="#f8fafc" />
       {/* Warm natural sunbeam light casting from windows */}
       <directionalLight
-        position={[-14, 18, -4]}
+        position={[-22, 28, -10]}
         intensity={1.25}
         color="#fffbeb"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
         shadow-camera-near={0.5}
-        shadow-camera-far={50}
-        shadow-camera-left={-12}
-        shadow-camera-right={12}
-        shadow-camera-top={12}
-        shadow-camera-bottom={-12}
+        shadow-camera-far={80}
+        shadow-camera-left={-22}
+        shadow-camera-right={22}
+        shadow-camera-top={22}
+        shadow-camera-bottom={-22}
         shadow-bias={-0.0004}
       />
       {/* Fill bounce light from front right */}
-      <directionalLight position={[10, 10, 8]} intensity={0.4} color="#93c5fd" />
+      <directionalLight position={[16, 16, 14]} intensity={0.45} color="#93c5fd" />
 
       {/* ================= FLOOR ARCHITECTURE ================= */}
-      {/* Polished Hardwood Plank Classroom Floor */}
+      {/* Polished Hardwood Plank Classroom Floor (Expanded 26.4m x 29.4m) */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.01, 0]}
         receiveShadow
       >
-        <planeGeometry args={[16.2, 14.2]} />
+        <planeGeometry args={[26.4, 29.4]} />
         <meshStandardMaterial color="#c29b69" roughness={0.3} metalness={0.06} />
       </mesh>
 
       {/* ================= ARCHITECTURAL PERIMETER CURBS (ALWAYS VISIBLE) ================= */}
-      {/* Front Wall Curb (Z = -7.0) */}
-      <group position={[0, 0, -7.0]}>
+      {/* Front Wall Curb (Z = -14.0) */}
+      <group position={[0, 0, -14.0]}>
         <mesh position={[0, 0.28, 0]} receiveShadow>
-          <boxGeometry args={[16.2, 0.56, 0.2]} />
+          <boxGeometry args={[26.4, 0.56, 0.2]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
         {/* Hardwood Curb Cap */}
         <mesh position={[0, 0.57, 0]} castShadow receiveShadow>
-          <boxGeometry args={[16.28, 0.04, 0.26]} />
+          <boxGeometry args={[26.48, 0.04, 0.26]} />
           <meshStandardMaterial color="#451a03" roughness={0.4} />
         </mesh>
       </group>
 
-      {/* Back Wall Curb (Z = 7.1) */}
-      <group position={[0, 0, 7.1]}>
+      {/* Back Wall Curb (Z = 14.5) */}
+      <group position={[0, 0, 14.5]}>
         <mesh position={[0, 0.28, 0]} receiveShadow>
-          <boxGeometry args={[16.2, 0.56, 0.2]} />
+          <boxGeometry args={[26.4, 0.56, 0.2]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
         {/* Hardwood Curb Cap */}
         <mesh position={[0, 0.57, 0]} castShadow receiveShadow>
-          <boxGeometry args={[16.28, 0.04, 0.26]} />
+          <boxGeometry args={[26.48, 0.04, 0.26]} />
           <meshStandardMaterial color="#451a03" roughness={0.4} />
         </mesh>
       </group>
 
-      {/* Left Wall Curb (X = -8.1) */}
-      <group position={[-8.1, 0, 0]}>
+      {/* Left Wall Curb (X = -13.1) */}
+      <group position={[-13.1, 0, 0]}>
         <mesh position={[0, 0.28, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 0.56, 14.2]} />
+          <boxGeometry args={[0.2, 0.56, 29.4]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
         {/* Hardwood Curb Cap */}
         <mesh position={[0, 0.57, 0]} castShadow receiveShadow>
-          <boxGeometry args={[0.26, 0.04, 14.28]} />
+          <boxGeometry args={[0.26, 0.04, 29.48]} />
           <meshStandardMaterial color="#451a03" roughness={0.4} />
         </mesh>
       </group>
 
-      {/* Right Wall Curb (X = 8.1) */}
-      <group position={[8.1, 0, 0]}>
+      {/* Right Wall Curb (X = 13.1) */}
+      <group position={[13.1, 0, 0]}>
         <mesh position={[0, 0.28, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 0.56, 14.2]} />
+          <boxGeometry args={[0.2, 0.56, 29.4]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
         {/* Hardwood Curb Cap */}
         <mesh position={[0, 0.57, 0]} castShadow receiveShadow>
-          <boxGeometry args={[0.26, 0.04, 14.28]} />
+          <boxGeometry args={[0.26, 0.04, 29.48]} />
           <meshStandardMaterial color="#451a03" roughness={0.4} />
         </mesh>
       </group>
 
       {/* ================= DYNAMIC UPPER WALLS (ORBIT CUTOFF SYSTEM) ================= */}
 
-      {/* 1. FRONT UPPER WALL & PROPS (Z = -7.0) */}
+      {/* 1. FRONT UPPER WALL & PROPS (Z = -14.0) */}
       <group ref={frontWallRef} position={[0, 0.58, 0]}>
         {/* Upper Wall Structure */}
-        <mesh position={[0, 2.21, -7.0]} receiveShadow>
-          <boxGeometry args={[16.2, 4.42, 0.2]} />
+        <mesh position={[0, 2.21, -14.0]} receiveShadow>
+          <boxGeometry args={[26.4, 4.42, 0.2]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
         {/* Wainscoting upper portion */}
-        <mesh position={[0, 0.35, -6.89]}>
-          <boxGeometry args={[16.2, 0.7, 0.04]} />
+        <mesh position={[0, 0.35, -13.89]}>
+          <boxGeometry args={[26.4, 0.7, 0.04]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
 
         {/* Smart Hybrid Blackboard & Screen */}
         <group position={[0, -0.58, 0]}>
-          <SmartBoard />
+          <SmartBoard position={[0, 2.45, -13.85]} />
         </group>
 
         {/* Real-time Philippine Standard Time (PST/UTC+8) Clock - Raised clear of blackboard */}
-        <ClassroomClock position={[0, 3.85, -6.86]} />
+        <ClassroomClock position={[0, 3.85, -13.86]} />
       </group>
 
-      {/* 2. BACK UPPER WALL & PROPS (Z = 7.1) */}
+      {/* 2. BACK UPPER WALL & PROPS (Z = 14.5) */}
       <group ref={backWallRef} position={[0, 0.58, 0]}>
-        <mesh position={[-4.5, 2.21, 7.1]} receiveShadow>
-          <boxGeometry args={[7.2, 4.42, 0.2]} />
+        <mesh position={[-7.4, 2.21, 14.5]} receiveShadow>
+          <boxGeometry args={[11.6, 4.42, 0.2]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
-        <mesh position={[4.5, 2.21, 7.1]} receiveShadow>
-          <boxGeometry args={[7.2, 4.42, 0.2]} />
+        <mesh position={[7.4, 2.21, 14.5]} receiveShadow>
+          <boxGeometry args={[11.6, 4.42, 0.2]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
-        <mesh position={[0, 3.72, 7.1]} receiveShadow>
-          <boxGeometry args={[2.0, 1.4, 0.2]} />
+        <mesh position={[0, 3.72, 14.5]} receiveShadow>
+          <boxGeometry args={[3.2, 1.4, 0.2]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
 
-        {/* Classroom Door Frame & Paneled Door */}
-        <group position={[0, 1.12, 7.0]}>
+        {/* Classroom Double Entrance Door Frame & Doors */}
+        <group position={[0, 1.12, 14.4]}>
           <mesh position={[0, 0, 0]} castShadow>
-            <boxGeometry args={[2.0, 3.4, 0.16]} />
+            <boxGeometry args={[3.0, 3.4, 0.16]} />
             <meshStandardMaterial color="#582f0e" roughness={0.4} />
           </mesh>
-          <mesh position={[0, 0, 0.02]}>
-            <boxGeometry args={[1.82, 3.2, 0.08]} />
+          {/* Left Door Leaf */}
+          <mesh position={[-0.72, 0, 0.02]}>
+            <boxGeometry args={[1.38, 3.2, 0.08]} />
             <meshStandardMaterial color="#78350f" roughness={0.4} />
           </mesh>
-          <mesh position={[0, 0.65, 0.04]}>
-            <boxGeometry args={[0.7, 1.1, 0.04]} />
+          <mesh position={[-0.72, 0.65, 0.04]}>
+            <boxGeometry args={[0.55, 1.1, 0.04]} />
             <meshStandardMaterial color="#e0f2fe" roughness={0.15} transparent opacity={0.75} />
           </mesh>
-          <mesh position={[0.68, -0.05, 0.08]} castShadow>
-            <boxGeometry args={[0.14, 0.03, 0.06]} />
+          {/* Left Door Brass Handle */}
+          <mesh position={[-0.12, -0.05, 0.08]} castShadow>
+            <boxGeometry args={[0.12, 0.03, 0.06]} />
             <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.15} />
           </mesh>
-          <mesh position={[0.62, -0.05, 0.06]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.02, 0.02, 0.04, 12]} />
+          {/* Right Door Leaf */}
+          <mesh position={[0.72, 0, 0.02]}>
+            <boxGeometry args={[1.38, 3.2, 0.08]} />
+            <meshStandardMaterial color="#78350f" roughness={0.4} />
+          </mesh>
+          <mesh position={[0.72, 0.65, 0.04]}>
+            <boxGeometry args={[0.55, 1.1, 0.04]} />
+            <meshStandardMaterial color="#e0f2fe" roughness={0.15} transparent opacity={0.75} />
+          </mesh>
+          {/* Right Door Brass Handle */}
+          <mesh position={[0.12, -0.05, 0.08]} castShadow>
+            <boxGeometry args={[0.12, 0.03, 0.06]} />
             <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.15} />
           </mesh>
         </group>
       </group>
 
-      {/* 3. LEFT UPPER WALL & PROPS (X = -8.1) */}
+      {/* 3. LEFT UPPER WALL & PROPS (X = -13.1) */}
       <group ref={leftWallRef} position={[0, 0.58, 0]}>
-        <mesh position={[-8.1, 2.21, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 4.42, 14.2]} />
+        <mesh position={[-13.1, 2.21, 0]} receiveShadow>
+          <boxGeometry args={[0.2, 4.42, 29.4]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
-        <mesh position={[-7.99, 0.35, 0]}>
-          <boxGeometry args={[0.04, 0.7, 14.2]} />
+        <mesh position={[-12.99, 0.35, 0]}>
+          <boxGeometry args={[0.04, 0.7, 29.4]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
 
-        {/* Sunlit Windows */}
-        {[-3.0, 2.0].map((zPos, idx) => (
-          <group key={`win-${idx}`} position={[-7.95, 2.02, zPos]} rotation={[0, Math.PI / 2, 0]}>
+        {/* 4 Grand Sunlit Windows */}
+        {[-9.0, -3.0, 3.0, 9.0].map((zPos, idx) => (
+          <group key={`win-${idx}`} position={[-12.95, 2.02, zPos]} rotation={[0, Math.PI / 2, 0]}>
             <mesh castShadow>
               <boxGeometry args={[3.4, 2.5, 0.12]} />
               <meshStandardMaterial color="#f8fafc" roughness={0.3} />
@@ -314,28 +326,29 @@ export function ClassroomScene() {
 
         {/* Cork Bulletin Board */}
         <group position={[0, -0.58, 0]}>
-          <BulletinBoardMesh />
+          <BulletinBoardMesh position={[-12.95, 2.5, 0]} />
         </group>
       </group>
 
-      {/* 4. RIGHT UPPER WALL & PROPS (X = 8.1) */}
+      {/* 4. RIGHT UPPER WALL & PROPS (X = 13.1) */}
       <group ref={rightWallRef} position={[0, 0.58, 0]}>
-        <mesh position={[8.1, 2.21, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 4.42, 14.2]} />
+        <mesh position={[13.1, 2.21, 0]} receiveShadow>
+          <boxGeometry args={[0.2, 4.42, 29.4]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
-        <mesh position={[7.99, 0.35, 0]}>
-          <boxGeometry args={[0.04, 0.7, 14.2]} />
+        <mesh position={[12.99, 0.35, 0]}>
+          <boxGeometry args={[0.04, 0.7, 29.4]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
 
-        {/* Detailed Bookshelf Unit */}
+        {/* Dual Detailed Bookshelf Units */}
         <group position={[0, -0.58, 0]}>
-          <DetailedBookshelf />
+          <DetailedBookshelf position={[12.8, 1.8, -4.5]} />
+          <DetailedBookshelf position={[12.8, 1.8, 4.5]} />
         </group>
 
         {/* Periodic Table Science Poster */}
-        <group position={[7.95, 2.02, -3.6]} rotation={[0, -Math.PI / 2, 0]}>
+        <group position={[12.95, 2.02, -9.5]} rotation={[0, -Math.PI / 2, 0]}>
           <mesh castShadow>
             <boxGeometry args={[1.7, 2.1, 0.04]} />
             <meshStandardMaterial color="#0f172a" roughness={0.3} />
@@ -358,10 +371,35 @@ export function ClassroomScene() {
             {"H  He  Li  Be  B  C  N  O  F  Ne\nNa  Mg  Al  Si  P  S  Cl  Ar\nK  Ca  Sc  Ti  V  Cr  Mn  Fe"}
           </Text>
         </group>
+
+        {/* Classverse Campus Science Charter Poster */}
+        <group position={[12.95, 2.02, 9.5]} rotation={[0, -Math.PI / 2, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[1.7, 2.1, 0.04]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.3} />
+          </mesh>
+          <mesh position={[0, 0, 0.02]}>
+            <boxGeometry args={[1.6, 2.0, 0.01]} />
+            <meshStandardMaterial color="#059669" roughness={0.6} />
+          </mesh>
+          <Text position={[0, 0.7, 0.03]} fontSize={0.16} color="#ffffff" anchorX="center">
+            SCIENTIFIC METHOD
+          </Text>
+          <Text
+            position={[0, 0.1, 0.03]}
+            fontSize={0.09}
+            color="#d1fae5"
+            anchorX="center"
+            maxWidth={1.4}
+            lineHeight={1.3}
+          >
+            {"1. Observe Phenomenon\n2. Form Hypothesis\n3. Conduct Experiment\n4. Analyze Data\n5. Draw Conclusions"}
+          </Text>
+        </group>
       </group>
 
       {/* ================= EXECUTIVE TEACHER DESK ================= */}
-      <TeacherDeskMesh />
+      <TeacherDeskMesh position={[0, 0, -10.5]} />
 
       {/* ================= ALL SEATS (1 Teacher Swivel Chair + 12 Student Desks & Chairs) ================= */}
       {CLASSROOM_SEATS.map((seat) => (

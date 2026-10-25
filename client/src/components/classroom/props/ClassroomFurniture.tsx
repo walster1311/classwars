@@ -294,9 +294,13 @@ export function StudentDeskMesh({ hasLaptop = false }: StudentDeskProps) {
 // ==========================================
 // 3. EXECUTIVE TEACHER DESK COMPONENT
 // ==========================================
-export function TeacherDeskMesh() {
+interface TeacherDeskProps {
+  position?: [number, number, number];
+}
+
+export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) {
   return (
-    <group position={[0, 0, -4.5]} rotation={[0, Math.PI, 0]}>
+    <group position={position} rotation={[0, Math.PI, 0]}>
       {/* Heavy Beveled Walnut Desktop */}
       <mesh position={[0, 0.78, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.6, 0.08, 1.25]} />
@@ -534,11 +538,15 @@ export function TeacherChairMesh({ isOccupied }: { isOccupied: boolean }) {
 // ==========================================
 // 5. DETAILED BOOKSHELVES UNIT
 // ==========================================
-export function DetailedBookshelf() {
+interface BookshelfProps {
+  position?: [number, number, number];
+}
+
+export function DetailedBookshelf({ position = [12.8, 1.8, 0] }: BookshelfProps) {
   const bookColors = ['#1d4ed8', '#b91c1c', '#047857', '#d97706', '#7c3aed', '#0284c7', '#be123c', '#334155'];
 
   return (
-    <group position={[7.8, 1.8, 0]}>
+    <group position={position}>
       {/* Solid Hardwood Case */}
       <mesh position={[0, 0, 0]} castShadow>
         <boxGeometry args={[0.48, 3.4, 4.4]} />
@@ -643,9 +651,13 @@ export function DetailedBookshelf() {
 // ==========================================
 // 6. CORK BULLETIN BOARD COMPONENT
 // ==========================================
-export function BulletinBoardMesh() {
+interface BulletinBoardProps {
+  position?: [number, number, number];
+}
+
+export function BulletinBoardMesh({ position = [-12.95, 2.5, 0] }: BulletinBoardProps) {
   return (
-    <group position={[-7.95, 2.5, 3.8]} rotation={[0, Math.PI / 2, 0]}>
+    <group position={position} rotation={[0, Math.PI / 2, 0]}>
       {/* Natural Oak Frame */}
       <mesh castShadow>
         <boxGeometry args={[2.2, 1.5, 0.05]} />

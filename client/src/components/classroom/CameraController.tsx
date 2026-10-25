@@ -7,7 +7,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
 import { useClassroomStore } from '@/lib/store';
 
-const DEFAULT_CAMERA_POS = new THREE.Vector3(14, 16, 16);
+const DEFAULT_CAMERA_POS = new THREE.Vector3(24, 26, 26);
 const DEFAULT_CAMERA_TARGET = new THREE.Vector3(0, 0, 0);
 
 export function CameraController() {
@@ -48,8 +48,8 @@ export function CameraController() {
       makeDefault
       enableDamping
       dampingFactor={0.05}
-      minDistance={6}
-      maxDistance={35}
+      minDistance={4}
+      maxDistance={65}
       maxPolarAngle={Math.PI / 2.2}
       target={DEFAULT_CAMERA_TARGET}
     />
