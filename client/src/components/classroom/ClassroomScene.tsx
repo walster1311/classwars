@@ -396,7 +396,7 @@ export function ClassroomScene() {
       </group>
 
       {/* ================= EXECUTIVE TEACHER DESK ================= */}
-      <TeacherDeskMesh position={[0, 0, -10.5]} />
+      <TeacherDeskMesh position={[0, 0, -10.25]} />
 
       {/* ================= ALL SEATS (1 Teacher Swivel Chair + 12 Student Desks & Chairs) ================= */}
       {CLASSROOM_SEATS.map((seat) => (
