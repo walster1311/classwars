@@ -46,11 +46,11 @@ export function ClassroomScene() {
   const leftWallRef = useRef<THREE.Group>(null);
   const rightWallRef = useRef<THREE.Group>(null);
 
-  // Initial scale values matching default camera angle [14, 16, 16] (+X, +Z)
+  // Initial scale values for perimeter walls (Full height 1.0 by default)
   const frontScale = useRef(1.0);
-  const backScale = useRef(0.001); // cut off when looking from +Z
+  const backScale = useRef(1.0);
   const leftScale = useRef(1.0);
-  const rightScale = useRef(0.001); // cut off when looking from +X
+  const rightScale = useRef(1.0);
 
   // Dynamic Camera Orbit Wall Cutoff System
   useFrame((_, delta) => {
@@ -60,33 +60,29 @@ export function ClassroomScene() {
     const dirX = camX / dist;
     const dirZ = camZ / dist;
 
-    let targetFront = 1.0;
+    // The Front Wall (blackboard, clock, and front architecture) NEVER disappears
+    const targetFront = 1.0;
     let targetBack = 1.0;
     let targetLeft = 1.0;
     let targetRight = 1.0;
 
     if (wallCutoffMode === 'cutoff') {
-      // Cut off all walls into low architectural knee-walls
-      targetFront = 0.001;
+      // Cut off side and back walls into low architectural knee-walls (Front wall remains fully standing)
       targetBack = 0.001;
       targetLeft = 0.001;
       targetRight = 0.001;
     } else if (wallCutoffMode === 'raised') {
       // Full height walls all around
-      targetFront = 1.0;
       targetBack = 1.0;
       targetLeft = 1.0;
       targetRight = 1.0;
     } else {
-      // 'auto': dynamic cutaway based on camera orbit angle
+      // 'auto': dynamic cutaway based on camera orbit angle for side/back walls
       // Back wall is at +Z: if camera is on +Z side (looking inward), cut it off
       targetBack = dirZ > 0.08 ? 0.001 : 1.0;
 
       // Right wall is at +X: if camera is on +X side (looking inward), cut it off
       targetRight = dirX > 0.08 ? 0.001 : 1.0;
-
-      // Front wall is at -Z: if camera is on -Z side (looking inward), cut it off
-      targetFront = dirZ < -0.08 ? 0.001 : 1.0;
 
       // Left wall is at -X: if camera is on -X side (looking inward), cut it off
       targetLeft = dirX < -0.08 ? 0.001 : 1.0;
@@ -94,14 +90,14 @@ export function ClassroomScene() {
 
     const lerpSpeed = Math.min(1.0, delta * 9);
 
-    frontScale.current = THREE.MathUtils.lerp(frontScale.current, targetFront, lerpSpeed);
+    frontScale.current = 1.0;
     backScale.current = THREE.MathUtils.lerp(backScale.current, targetBack, lerpSpeed);
     leftScale.current = THREE.MathUtils.lerp(leftScale.current, targetLeft, lerpSpeed);
     rightScale.current = THREE.MathUtils.lerp(rightScale.current, targetRight, lerpSpeed);
 
     if (frontWallRef.current) {
-      frontWallRef.current.scale.y = frontScale.current;
-      frontWallRef.current.visible = frontScale.current > 0.03;
+      frontWallRef.current.scale.y = 1.0;
+      frontWallRef.current.visible = true;
     }
     if (backWallRef.current) {
       backWallRef.current.scale.y = backScale.current;

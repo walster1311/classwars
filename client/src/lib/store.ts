@@ -129,7 +129,7 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
 
   activeTab: 'chat',
   isTeacherModalOpen: false,
-  wallCutoffMode: 'auto',
+  wallCutoffMode: 'raised',
   cameraResetNonce: 0,
   toast: null,
   activeReaction: null,

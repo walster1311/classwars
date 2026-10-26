@@ -134,7 +134,7 @@ export function ClassroomCanvas() {
         shadows
         dpr={[1, 1.5]}
         performance={{ min: 0.5 }}
-        camera={{ position: [24, 26, 26], fov: 38 }}
+        camera={{ position: [24, 26, 26], fov: 38, near: 0.1, far: 300 }}
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', stencil: false }}
       >
         <CameraController />
