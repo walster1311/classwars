@@ -116,25 +116,28 @@ export function ClassroomScene() {
   return (
     <group>
       {/* ================= LIGHTING & ATMOSPHERE ================= */}
-      <ambientLight intensity={0.8} color="#f8fafc" />
-      {/* Warm natural sunbeam light casting from windows */}
+      {/* Soft, even ambient classroom lighting */}
+      <ambientLight intensity={1.0} color="#f8fafc" />
+
+      {/* Main Overhead Ceiling Downlight (Natural direct downlighting, zero wall cast shadows) */}
       <directionalLight
-        position={[-22, 28, -10]}
-        intensity={1.25}
+        position={[2, 24, 2]}
+        intensity={0.7}
         color="#fffbeb"
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
         shadow-camera-near={0.5}
-        shadow-camera-far={80}
-        shadow-camera-left={-22}
-        shadow-camera-right={22}
-        shadow-camera-top={22}
-        shadow-camera-bottom={-22}
-        shadow-bias={-0.0002}
+        shadow-camera-far={45}
+        shadow-camera-left={-16}
+        shadow-camera-right={16}
+        shadow-camera-top={16}
+        shadow-camera-bottom={-16}
+        shadow-bias={-0.0006}
       />
-      {/* Fill bounce light from front right */}
-      <directionalLight position={[16, 16, 14]} intensity={0.45} color="#93c5fd" />
+      {/* Soft ambient fill lights (No shadow casting) */}
+      <directionalLight position={[-12, 16, -12]} intensity={0.25} color="#e0f2fe" />
+      <directionalLight position={[12, 16, 12]} intensity={0.25} color="#fef3c7" />
 
       {/* ================= FLOOR ARCHITECTURE ================= */}
       {/* Polished Hardwood Plank Classroom Floor (Expanded 26.4m x 29.4m) */}
@@ -150,12 +153,12 @@ export function ClassroomScene() {
       {/* ================= ARCHITECTURAL PERIMETER CURBS (ALWAYS VISIBLE) ================= */}
       {/* Front Wall Curb (Z = -14.0) */}
       <group position={[0, 0, -14.0]}>
-        <mesh position={[0, 0.28, 0]} receiveShadow>
+        <mesh position={[0, 0.28, 0]}>
           <boxGeometry args={[26.4, 0.56, 0.2]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
         {/* Hardwood Curb Cap */}
-        <mesh position={[0, 0.57, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.57, 0]}>
           <boxGeometry args={[26.48, 0.04, 0.26]} />
           <meshStandardMaterial color="#451a03" roughness={0.4} />
         </mesh>
@@ -163,12 +166,12 @@ export function ClassroomScene() {
 
       {/* Back Wall Curb (Z = 14.5) */}
       <group position={[0, 0, 14.5]}>
-        <mesh position={[0, 0.28, 0]} receiveShadow>
+        <mesh position={[0, 0.28, 0]}>
           <boxGeometry args={[26.4, 0.56, 0.2]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
         {/* Hardwood Curb Cap */}
-        <mesh position={[0, 0.57, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.57, 0]}>
           <boxGeometry args={[26.48, 0.04, 0.26]} />
           <meshStandardMaterial color="#451a03" roughness={0.4} />
         </mesh>
@@ -176,12 +179,12 @@ export function ClassroomScene() {
 
       {/* Left Wall Curb (X = -13.1) */}
       <group position={[-13.1, 0, 0]}>
-        <mesh position={[0, 0.28, 0]} receiveShadow>
+        <mesh position={[0, 0.28, 0]}>
           <boxGeometry args={[0.2, 0.56, 29.4]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
         {/* Hardwood Curb Cap */}
-        <mesh position={[0, 0.57, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.57, 0]}>
           <boxGeometry args={[0.26, 0.04, 29.48]} />
           <meshStandardMaterial color="#451a03" roughness={0.4} />
         </mesh>
@@ -189,12 +192,12 @@ export function ClassroomScene() {
 
       {/* Right Wall Curb (X = 13.1) */}
       <group position={[13.1, 0, 0]}>
-        <mesh position={[0, 0.28, 0]} receiveShadow>
+        <mesh position={[0, 0.28, 0]}>
           <boxGeometry args={[0.2, 0.56, 29.4]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
         {/* Hardwood Curb Cap */}
-        <mesh position={[0, 0.57, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.57, 0]}>
           <boxGeometry args={[0.26, 0.04, 29.48]} />
           <meshStandardMaterial color="#451a03" roughness={0.4} />
         </mesh>
@@ -205,7 +208,7 @@ export function ClassroomScene() {
       {/* 1. FRONT UPPER WALL & PROPS (Z = -14.0) */}
       <group ref={frontWallRef} position={[0, 0.58, 0]}>
         {/* Upper Wall Structure */}
-        <mesh position={[0, 2.21, -14.0]} receiveShadow>
+        <mesh position={[0, 2.21, -14.0]}>
           <boxGeometry args={[26.4, 4.42, 0.2]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
@@ -226,22 +229,22 @@ export function ClassroomScene() {
 
       {/* 2. BACK UPPER WALL & PROPS (Z = 14.5) */}
       <group ref={backWallRef} position={[0, 0.58, 0]}>
-        <mesh position={[-7.4, 2.21, 14.5]} receiveShadow>
+        <mesh position={[-7.4, 2.21, 14.5]}>
           <boxGeometry args={[11.6, 4.42, 0.2]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
-        <mesh position={[7.4, 2.21, 14.5]} receiveShadow>
+        <mesh position={[7.4, 2.21, 14.5]}>
           <boxGeometry args={[11.6, 4.42, 0.2]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
-        <mesh position={[0, 3.72, 14.5]} receiveShadow>
+        <mesh position={[0, 3.72, 14.5]}>
           <boxGeometry args={[3.2, 1.4, 0.2]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
 
         {/* Classroom Double Entrance Door Frame & Doors */}
         <group position={[0, 1.12, 14.4]}>
-          <mesh position={[0, 0, 0]} castShadow>
+          <mesh position={[0, 0, 0]}>
             <boxGeometry args={[3.0, 3.4, 0.16]} />
             <meshStandardMaterial color="#582f0e" roughness={0.4} />
           </mesh>
@@ -255,7 +258,7 @@ export function ClassroomScene() {
             <meshStandardMaterial color="#e0f2fe" roughness={0.15} transparent opacity={0.75} />
           </mesh>
           {/* Left Door Brass Handle */}
-          <mesh position={[-0.12, -0.05, 0.08]} castShadow>
+          <mesh position={[-0.12, -0.05, 0.08]}>
             <boxGeometry args={[0.12, 0.03, 0.06]} />
             <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.15} />
           </mesh>
@@ -269,7 +272,7 @@ export function ClassroomScene() {
             <meshStandardMaterial color="#e0f2fe" roughness={0.15} transparent opacity={0.75} />
           </mesh>
           {/* Right Door Brass Handle */}
-          <mesh position={[0.12, -0.05, 0.08]} castShadow>
+          <mesh position={[0.12, -0.05, 0.08]}>
             <boxGeometry args={[0.12, 0.03, 0.06]} />
             <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.15} />
           </mesh>
@@ -279,7 +282,7 @@ export function ClassroomScene() {
       {/* 3. LEFT UPPER WALL (SOLID ARCHITECTURAL WALL) (X = -13.1) */}
       <group ref={leftWallRef} position={[0, 0.58, 0]}>
         {/* Full Solid Structural Wall */}
-        <mesh position={[-13.1, 2.21, 0]} receiveShadow>
+        <mesh position={[-13.1, 2.21, 0]}>
           <boxGeometry args={[0.2, 4.42, 29.4]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
@@ -297,7 +300,7 @@ export function ClassroomScene() {
 
       {/* 4. RIGHT UPPER WALL & PROPS (X = 13.1) */}
       <group ref={rightWallRef} position={[0, 0.58, 0]}>
-        <mesh position={[13.1, 2.21, 0]} receiveShadow>
+        <mesh position={[13.1, 2.21, 0]}>
           <boxGeometry args={[0.2, 4.42, 29.4]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
@@ -314,7 +317,7 @@ export function ClassroomScene() {
 
         {/* Periodic Table Science Poster */}
         <group position={[12.95, 2.02, -9.5]} rotation={[0, -Math.PI / 2, 0]}>
-          <mesh castShadow>
+          <mesh>
             <boxGeometry args={[1.7, 2.1, 0.04]} />
             <meshStandardMaterial color="#0f172a" roughness={0.3} />
           </mesh>
@@ -339,7 +342,7 @@ export function ClassroomScene() {
 
         {/* Classverse Campus Science Charter Poster */}
         <group position={[12.95, 2.02, 9.5]} rotation={[0, -Math.PI / 2, 0]}>
-          <mesh castShadow>
+          <mesh>
             <boxGeometry args={[1.7, 2.1, 0.04]} />
             <meshStandardMaterial color="#0f172a" roughness={0.3} />
           </mesh>

@@ -117,8 +117,8 @@ export function ClassroomClock({ position = [0, 3.85, -6.86] }: ClassroomClockPr
       }}
       onPointerOut={() => setHovered(false)}
     >
-      {/* Outer Casing / Rim */}
-      <mesh castShadow rotation={[Math.PI / 2, 0, 0]}>
+      {/* Outer Casing / Rim (Wall mounted, no shadow casting) */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.38, 0.38, 0.06, 48]} />
         <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.7} />
       </mesh>

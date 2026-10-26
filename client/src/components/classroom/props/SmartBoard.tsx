@@ -135,14 +135,14 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
   return (
     <group position={position}>
       {/* ================= ARCHITECTURAL FRAME & BACKING ================= */}
-      {/* Outer Polished Hardwood Mounting Board */}
-      <mesh castShadow receiveShadow position={[0, 0, -0.04]}>
+      {/* Outer Polished Hardwood Mounting Board (Wall mounted, no shadow casting) */}
+      <mesh position={[0, 0, -0.04]}>
         <boxGeometry args={[11.6, 2.8, 0.12]} />
         <meshStandardMaterial color="#451a03" roughness={0.4} metalness={0.1} />
       </mesh>
 
       {/* Brushed Aluminum Inner Casing Bezel */}
-      <mesh position={[0, 0, 0.02]} castShadow>
+      <mesh position={[0, 0, 0.02]}>
         <boxGeometry args={[11.4, 2.6, 0.04]} />
         <meshStandardMaterial color="#334155" roughness={0.25} metalness={0.8} />
       </mesh>
@@ -150,7 +150,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
       {/* ================= LEFT WING: TRADITIONAL CHALKBOARD ================= */}
       <group position={[-4.1, 0, 0.04]}>
         {/* Dark Slate Surface */}
-        <mesh receiveShadow>
+        <mesh>
           <boxGeometry args={[2.8, 2.36, 0.02]} />
           <meshStandardMaterial color="#0f172a" roughness={0.95} metalness={0.05} />
         </mesh>
@@ -199,7 +199,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
       {/* ================= CENTER: DIGITAL SMART PRESENTATION SCREEN ================= */}
       <group position={[0, 0, 0.04]}>
         {/* 16:9 Glowing Screen Glass Bed */}
-        <mesh receiveShadow>
+        <mesh>
           <boxGeometry args={[5.0, 2.36, 0.025]} />
           <meshStandardMaterial
             color="#090d16"
@@ -462,7 +462,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
       {/* ================= RIGHT WING: SECONDARY CHALKBOARD ================= */}
       <group position={[4.1, 0, 0.04]}>
         {/* Dark Slate Surface */}
-        <mesh receiveShadow>
+        <mesh>
           <boxGeometry args={[2.8, 2.36, 0.02]} />
           <meshStandardMaterial color="#0f172a" roughness={0.95} metalness={0.05} />
         </mesh>
@@ -522,7 +522,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
       {/* ================= CHALK & ACCESSORIES TRAY ================= */}
       <group position={[0, -1.24, 0.16]}>
         {/* Heavy Aluminum Tray Lip */}
-        <mesh castShadow receiveShadow>
+        <mesh>
           <boxGeometry args={[11.2, 0.06, 0.28]} />
           <meshStandardMaterial color="#475569" roughness={0.3} metalness={0.7} />
         </mesh>
@@ -535,7 +535,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
         {[-3.6, -1.8, 1.8, 3.6].map((x, i) => (
           <group key={`eraser-${i}`} position={[x, 0.04, 0.02]}>
             {/* Wooden Backing */}
-            <mesh castShadow>
+            <mesh>
               <boxGeometry args={[0.34, 0.035, 0.14]} />
               <meshStandardMaterial color="#78350f" roughness={0.6} />
             </mesh>
@@ -551,7 +551,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
         {[-4.5, -4.3, -4.1, 4.3, 4.5, 4.7].map((x, i) => {
           const colors = ['#f8fafc', '#fef08a', '#38bdf8', '#4ade80', '#f472b6', '#f8fafc'];
           return (
-            <mesh key={`chalk-${i}`} position={[x, 0.03, 0.04]} rotation={[0, 0, Math.PI / 2]} castShadow>
+            <mesh key={`chalk-${i}`} position={[x, 0.03, 0.04]} rotation={[0, 0, Math.PI / 2]}>
               <cylinderGeometry args={[0.015, 0.015, 0.14, 8]} />
               <meshStandardMaterial color={colors[i % colors.length]} roughness={0.9} />
             </mesh>
@@ -563,7 +563,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
           const capColors = ['#0f172a', '#2563eb', '#dc2626', '#16a34a', '#7c3aed'];
           return (
             <group key={`marker-${i}`} position={[x, 0.03, 0.04]} rotation={[0, 0, Math.PI / 2]}>
-              <mesh castShadow>
+              <mesh>
                 <cylinderGeometry args={[0.018, 0.018, 0.18, 12]} />
                 <meshStandardMaterial color="#f8fafc" roughness={0.3} />
               </mesh>
@@ -579,7 +579,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
       {/* ================= OVERHEAD ARCHITECTURAL LIGHT BAR ================= */}
       <group position={[0, 1.45, 0.25]}>
         {/* Horizontal Steel Mount Bar */}
-        <mesh castShadow>
+        <mesh>
           <boxGeometry args={[9.5, 0.05, 0.05]} />
           <meshStandardMaterial color="#334155" metalness={0.8} />
         </mesh>
@@ -593,7 +593,7 @@ export function SmartBoard({ position = [0, 2.45, -13.85] }: SmartBoardProps) {
         {/* Downward Angled Spot Lamps */}
         {[-3.2, -1.2, 1.2, 3.2].map((x, i) => (
           <group key={`spot-${i}`} position={[x, -0.05, 0.05]} rotation={[-0.5, 0, 0]}>
-            <mesh castShadow>
+            <mesh>
               <cylinderGeometry args={[0.06, 0.09, 0.12, 16]} />
               <meshStandardMaterial color="#1e293b" metalness={0.7} />
             </mesh>

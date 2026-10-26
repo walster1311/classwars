@@ -51,7 +51,7 @@ export const StudentChairMesh = React.memo(function StudentChairMesh({
           <cylinderGeometry args={[0.014, 0.014, 0.42, 8]} />
           <meshStandardMaterial color="#1e293b" metalness={0.7} />
         </mesh>
-        <mesh castShadow>
+        <mesh>
           <boxGeometry args={[0.46, 0.36, 0.035]} />
           <meshStandardMaterial
             color={color}
@@ -151,7 +151,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
 
       {/* Left Drawer Pedestal */}
       <group position={[-1.02, 0.39, 0]}>
-        <mesh castShadow>
+        <mesh>
           <boxGeometry args={[0.48, 0.78, 1.1]} />
           <meshStandardMaterial color="#361500" roughness={0.4} />
         </mesh>
@@ -173,7 +173,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
 
       {/* Right Drawer Pedestal */}
       <group position={[1.02, 0.39, 0]}>
-        <mesh castShadow>
+        <mesh>
           <boxGeometry args={[0.48, 0.78, 1.1]} />
           <meshStandardMaterial color="#361500" roughness={0.4} />
         </mesh>
@@ -194,7 +194,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
       </group>
 
       {/* Front Architectural Modesty Panel */}
-      <mesh position={[0, 0.45, -0.48]} castShadow>
+      <mesh position={[0, 0.45, -0.48]}>
         <boxGeometry args={[1.56, 0.58, 0.04]} />
         <meshStandardMaterial color="#361500" roughness={0.4} />
       </mesh>
@@ -203,7 +203,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
       {/* 1. Sleek Teacher Laptop */}
       <group position={[-0.32, 0.83, 0.06]} rotation={[0, -0.15, 0]}>
         {/* Aluminum Chassis */}
-        <mesh castShadow>
+        <mesh>
           <boxGeometry args={[0.42, 0.018, 0.3]} />
           <meshStandardMaterial color="#64748b" metalness={0.8} roughness={0.2} />
         </mesh>
@@ -213,7 +213,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
           <meshStandardMaterial color="#1e293b" />
         </mesh>
         {/* Upright Screen */}
-        <mesh position={[0, 0.17, -0.14]} rotation={[-0.3, 0, 0]} castShadow>
+        <mesh position={[0, 0.17, -0.14]} rotation={[-0.3, 0, 0]}>
           <boxGeometry args={[0.42, 0.3, 0.015]} />
           <meshStandardMaterial color="#334155" metalness={0.7} />
         </mesh>
@@ -227,7 +227,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
       {/* 2. Brass Architect Desk Lamp with Warm Glow */}
       <group position={[-0.95, 0.82, -0.22]}>
         {/* Base */}
-        <mesh castShadow>
+        <mesh>
           <cylinderGeometry args={[0.08, 0.09, 0.03, 16]} />
           <meshStandardMaterial color="#d97706" metalness={0.85} roughness={0.2} />
         </mesh>
@@ -238,7 +238,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
         </mesh>
         {/* Shade */}
         <group position={[0.1, 0.32, 0.12]} rotation={[-0.7, 0, 0]}>
-          <mesh castShadow>
+          <mesh>
             <cylinderGeometry args={[0.05, 0.1, 0.14, 16]} />
             <meshStandardMaterial color="#15803d" roughness={0.3} />
           </mesh>
@@ -252,7 +252,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
 
       {/* 3. Ceramic Teacher Coffee Mug & Apple */}
       <group position={[0.45, 0.88, 0.18]}>
-        <mesh castShadow>
+        <mesh>
           <cylinderGeometry args={[0.06, 0.06, 0.12, 16]} />
           <meshStandardMaterial color="#dc2626" roughness={0.2} />
         </mesh>
@@ -263,7 +263,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
         </mesh>
       </group>
       {/* Fresh Red Apple */}
-      <mesh position={[0.35, 0.87, 0.28]} castShadow>
+      <mesh position={[0.35, 0.87, 0.28]}>
         <sphereGeometry args={[0.055, 16, 16]} />
         <meshStandardMaterial color="#ef4444" roughness={0.25} />
       </mesh>
@@ -271,7 +271,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
       {/* 4. Desktop Pen Organizer & Paper Tray */}
       <group position={[0.95, 0.82, -0.15]}>
         {/* Pen Cup */}
-        <mesh position={[-0.12, 0.06, 0]} castShadow>
+        <mesh position={[-0.12, 0.06, 0]}>
           <cylinderGeometry args={[0.05, 0.05, 0.12, 16]} />
           <meshStandardMaterial color="#334155" metalness={0.6} />
         </mesh>
@@ -286,7 +286,7 @@ export function TeacherDeskMesh({ position = [0, 0, -10.5] }: TeacherDeskProps) 
         </mesh>
 
         {/* Paper In-Tray */}
-        <mesh position={[0.1, 0.025, 0]} castShadow>
+        <mesh position={[0.1, 0.025, 0]}>
           <boxGeometry args={[0.28, 0.05, 0.36]} />
           <meshStandardMaterial color="#1e293b" />
         </mesh>
@@ -308,7 +308,7 @@ export function TeacherChairMesh({ isOccupied }: { isOccupied: boolean }) {
       {/* 5-Star Chrome Castor Base */}
       <group position={[0, 0.05, 0]}>
         {/* Center Chrome Hub */}
-        <mesh castShadow>
+        <mesh>
           <cylinderGeometry args={[0.07, 0.08, 0.06, 16]} />
           <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.1} />
         </mesh>
@@ -317,7 +317,7 @@ export function TeacherChairMesh({ isOccupied }: { isOccupied: boolean }) {
           const angle = (i * Math.PI * 2) / 5;
           return (
             <group key={`star-leg-${i}`} rotation={[0, angle, 0]}>
-              <mesh position={[0, 0, 0.16]} rotation={[0.1, 0, 0]} castShadow>
+              <mesh position={[0, 0, 0.16]} rotation={[0.1, 0, 0]}>
                 <boxGeometry args={[0.04, 0.03, 0.3]} />
                 <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.1} />
               </mesh>
@@ -332,7 +332,7 @@ export function TeacherChairMesh({ isOccupied }: { isOccupied: boolean }) {
       </group>
 
       {/* Pneumatic Gas Lift Cylinder */}
-      <mesh position={[0, 0.24, 0]} castShadow>
+      <mesh position={[0, 0.24, 0]}>
         <cylinderGeometry args={[0.03, 0.03, 0.32, 16]} />
         <meshStandardMaterial color="#334155" metalness={0.9} roughness={0.2} />
       </mesh>
@@ -344,12 +344,12 @@ export function TeacherChairMesh({ isOccupied }: { isOccupied: boolean }) {
       </mesh>
 
       {/* Padded High-Back Lumbar Backrest */}
-      <mesh position={[0, 0.82, -0.22]} rotation={[0.05, 0, 0]} castShadow>
+      <mesh position={[0, 0.82, -0.22]} rotation={[0.05, 0, 0]}>
         <boxGeometry args={[0.52, 0.65, 0.07]} />
         <meshStandardMaterial color="#0f172a" roughness={0.4} metalness={0.1} />
       </mesh>
       {/* Contoured Headrest */}
-      <mesh position={[0, 1.18, -0.2]} castShadow>
+      <mesh position={[0, 1.18, -0.2]}>
         <boxGeometry args={[0.34, 0.16, 0.08]} />
         <meshStandardMaterial color="#1e293b" roughness={0.4} />
       </mesh>
@@ -357,7 +357,7 @@ export function TeacherChairMesh({ isOccupied }: { isOccupied: boolean }) {
       {/* Padded Armrests */}
       {[-0.29, 0.29].map((x, i) => (
         <group key={`armrest-${i}`} position={[x, 0.64, 0]}>
-          <mesh castShadow>
+          <mesh>
             <boxGeometry args={[0.07, 0.03, 0.32]} />
             <meshStandardMaterial color="#0f172a" roughness={0.4} />
           </mesh>
@@ -384,15 +384,15 @@ export function DetailedBookshelf({ position = [12.8, 1.8, 0] }: BookshelfProps)
 
   return (
     <group position={position}>
-      {/* Solid Hardwood Case */}
-      <mesh position={[0, 0, 0]} castShadow>
+      {/* Solid Hardwood Case (Flush to wall, no shadow casting) */}
+      <mesh position={[0, 0, 0]}>
         <boxGeometry args={[0.48, 3.4, 4.4]} />
         <meshStandardMaterial color="#451a03" roughness={0.4} metalness={0.05} />
       </mesh>
 
       {/* 4 Shelves */}
       {[-1.1, -0.3, 0.5, 1.3].map((yOff, i) => (
-        <mesh key={`shelf-slab-${i}`} position={[-0.05, yOff, 0]} castShadow receiveShadow>
+        <mesh key={`shelf-slab-${i}`} position={[-0.05, yOff, 0]}>
           <boxGeometry args={[0.42, 0.06, 4.2]} />
           <meshStandardMaterial color="#582f0e" roughness={0.4} />
         </mesh>
@@ -406,7 +406,7 @@ export function DetailedBookshelf({ position = [12.8, 1.8, 0] }: BookshelfProps)
           const height = 0.38 + (idx % 3) * 0.05;
           const col = bookColors[idx % bookColors.length];
           return (
-            <mesh key={`b1-${idx}`} position={[0, height / 2 - 0.2, idx * 0.13]} castShadow>
+            <mesh key={`b1-${idx}`} position={[0, height / 2 - 0.2, idx * 0.13]}>
               <boxGeometry args={[0.26, height, width]} />
               <meshStandardMaterial color={col} roughness={0.5} />
             </mesh>
@@ -421,7 +421,7 @@ export function DetailedBookshelf({ position = [12.8, 1.8, 0] }: BookshelfProps)
           const height = 0.4 + (idx % 4) * 0.04;
           const col = bookColors[(idx + 3) % bookColors.length];
           return (
-            <mesh key={`b2-${idx}`} position={[0, height / 2 - 0.2, idx * 0.13]} castShadow>
+            <mesh key={`b2-${idx}`} position={[0, height / 2 - 0.2, idx * 0.13]}>
               <boxGeometry args={[0.26, height, width]} />
               <meshStandardMaterial color={col} roughness={0.5} />
             </mesh>
@@ -431,7 +431,7 @@ export function DetailedBookshelf({ position = [12.8, 1.8, 0] }: BookshelfProps)
         {/* Brass Gimbal Desktop Globe */}
         <group position={[0.02, 0.08, 3.1]}>
           {/* Base */}
-          <mesh castShadow>
+          <mesh>
             <cylinderGeometry args={[0.12, 0.14, 0.04, 16]} />
             <meshStandardMaterial color="#d97706" metalness={0.85} roughness={0.2} />
           </mesh>
@@ -456,7 +456,7 @@ export function DetailedBookshelf({ position = [12.8, 1.8, 0] }: BookshelfProps)
           return (
             <group key={`flask-${idx}`} position={[0, -0.15, z]}>
               {/* Glass body */}
-              <mesh castShadow>
+              <mesh>
                 <cylinderGeometry args={[0.03, 0.1, 0.2, 16]} />
                 <meshStandardMaterial color="#e0f2fe" transparent opacity={0.55} roughness={0.1} />
               </mesh>
@@ -472,7 +472,7 @@ export function DetailedBookshelf({ position = [12.8, 1.8, 0] }: BookshelfProps)
 
       {/* Potted Trailing Ivy on Top */}
       <group position={[-0.05, 1.85, 1.2]}>
-        <mesh castShadow>
+        <mesh>
           <cylinderGeometry args={[0.16, 0.12, 0.22, 16]} />
           <meshStandardMaterial color="#b45309" roughness={0.7} />
         </mesh>
@@ -495,8 +495,8 @@ interface BulletinBoardProps {
 export function BulletinBoardMesh({ position = [-12.95, 2.5, 0] }: BulletinBoardProps) {
   return (
     <group position={position} rotation={[0, Math.PI / 2, 0]}>
-      {/* Natural Oak Frame */}
-      <mesh castShadow>
+      {/* Natural Oak Frame (Wall-mounted, no shadow casting) */}
+      <mesh>
         <boxGeometry args={[2.2, 1.5, 0.05]} />
         <meshStandardMaterial color="#78350f" roughness={0.5} />
       </mesh>
@@ -515,7 +515,7 @@ export function BulletinBoardMesh({ position = [-12.95, 2.5, 0] }: BulletinBoard
         { x: 0.3, y: -0.3, col: '#fed7aa', rot: 0.08, text: 'HONOR CODE' }
       ].map((note, idx) => (
         <group key={`pin-note-${idx}`} position={[note.x, note.y, 0.03]} rotation={[0, 0, note.rot]}>
-          <mesh castShadow>
+          <mesh>
             <boxGeometry args={[0.42, 0.35, 0.005]} />
             <meshStandardMaterial color={note.col} roughness={0.7} />
           </mesh>
@@ -556,7 +556,7 @@ export function SuspendedCeilingLamps() {
           </mesh>
 
           {/* Pendant Housing Box */}
-          <mesh castShadow>
+          <mesh>
             <boxGeometry args={[1.5, 0.08, 0.28]} />
             <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
           </mesh>
