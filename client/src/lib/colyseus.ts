@@ -71,6 +71,11 @@ class ColyseusService {
         this.room.state.boardTopic || 'biology',
         this.room.state.boardSlide || 0
       );
+      store.setScreenSharingState(
+        this.room.state.isScreenSharing || false,
+        this.room.state.screenSharePresenterId || '',
+        this.room.state.screenSharePresenterName || ''
+      );
 
       this.setupRoomListeners(this.room);
 
@@ -284,6 +289,15 @@ class ColyseusService {
       useClassroomStore.getState().showToast(`ANNOUNCEMENT: ${payload.text}`, 'info');
     });
 
+    room.onMessage('screenshare_state_changed', (payload: { isScreenSharing: boolean; presenterId: string; presenterName: string }) => {
+      useClassroomStore.getState().setScreenSharingState(payload.isScreenSharing, payload.presenterId, payload.presenterName);
+      if (payload.isScreenSharing) {
+        useClassroomStore.getState().showToast(`📺 ${payload.presenterName || 'Teacher'} started sharing their screen on the blackboard!`, 'info');
+      } else {
+        useClassroomStore.getState().showToast('Screen sharing stopped. Blackboard restored.', 'info');
+      }
+    });
+
     room.onError((code, message) => {
       console.error('[Colyseus Room Error]', code, message);
       useClassroomStore.getState().showToast(`Room error: ${message}`, 'error');
@@ -376,6 +390,16 @@ class ColyseusService {
   sendChangeBoardTopic(topic: string) {
     if (!this.room) return;
     this.room.send(MSG_TYPES.CHANGE_BOARD_TOPIC, { topic });
+  }
+
+  sendStartScreenShare(presenterName?: string) {
+    if (!this.room) return;
+    this.room.send(MSG_TYPES.START_SCREENSHARE, { presenterName });
+  }
+
+  sendStopScreenShare() {
+    if (!this.room) return;
+    this.room.send(MSG_TYPES.STOP_SCREENSHARE);
   }
 
   disconnect() {

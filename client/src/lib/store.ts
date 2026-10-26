@@ -52,6 +52,11 @@ interface ClassroomState {
   isChatLocked: boolean;
   boardTopic: string;
   boardSlide: number;
+  isScreenSharing: boolean;
+  screenSharePresenterId: string;
+  screenSharePresenterName: string;
+  screenStream: MediaStream | null;
+  screenVideoElement: HTMLVideoElement | null;
   isConnected: boolean;
   isReconnecting: boolean;
 
@@ -88,6 +93,8 @@ interface ClassroomState {
   setMode: (mode: ClassroomMode) => void;
   setChatLocked: (locked: boolean) => void;
   setBoardState: (topic: string, slide: number) => void;
+  setScreenSharingState: (isSharing: boolean, presenterId?: string, presenterName?: string) => void;
+  setScreenStream: (stream: MediaStream | null, videoEl: HTMLVideoElement | null) => void;
   setWallCutoffMode: (mode: 'auto' | 'cutoff' | 'raised') => void;
   cycleWallCutoffMode: () => void;
   setActiveTab: (tab: 'chat' | 'announcements' | 'queue') => void;
@@ -119,6 +126,11 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
   isChatLocked: false,
   boardTopic: 'biology',
   boardSlide: 0,
+  isScreenSharing: false,
+  screenSharePresenterId: '',
+  screenSharePresenterName: '',
+  screenStream: null,
+  screenVideoElement: null,
   isConnected: false,
   isReconnecting: false,
 
@@ -228,6 +240,15 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
   setMode: (mode) => set({ mode }),
   setChatLocked: (locked) => set({ isChatLocked: locked }),
   setBoardState: (topic, slide) => set({ boardTopic: topic, boardSlide: slide }),
+  setScreenSharingState: (isSharing, presenterId = '', presenterName = '') => set({
+    isScreenSharing: isSharing,
+    screenSharePresenterId: presenterId,
+    screenSharePresenterName: presenterName
+  }),
+  setScreenStream: (stream, videoEl) => set({
+    screenStream: stream,
+    screenVideoElement: videoEl
+  }),
   setWallCutoffMode: (mode) => set({ wallCutoffMode: mode }),
   cycleWallCutoffMode: () => set((state) => {
     const cycleMap: Record<'auto' | 'cutoff' | 'raised', 'auto' | 'cutoff' | 'raised'> = {
@@ -263,3 +284,7 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
     });
   }
 }));
+
+if (typeof window !== 'undefined') {
+  (window as any).__CLASSROOM_STORE__ = useClassroomStore;
+}

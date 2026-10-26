@@ -12,11 +12,15 @@ import {
   Smile,
   LogOut,
   Lock,
-  Layers
+  Layers,
+  ScreenShare,
+  ScreenShareOff,
+  Monitor
 } from 'lucide-react';
 import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
 import { livekitService } from '@/lib/livekit';
+import { screenShareService } from '@/lib/screenshare';
 
 export function BottomToolbar() {
   const router = useRouter();
@@ -30,6 +34,7 @@ export function BottomToolbar() {
   const triggerCameraReset = useClassroomStore((s) => s.triggerCameraReset);
   const wallCutoffMode = useClassroomStore((s) => s.wallCutoffMode);
   const cycleWallCutoffMode = useClassroomStore((s) => s.cycleWallCutoffMode);
+  const isScreenSharing = useClassroomStore((s) => s.isScreenSharing);
   const showToast = useClassroomStore((s) => s.showToast);
 
   const isTeacher = myRole === 'teacher';
@@ -121,15 +126,30 @@ export function BottomToolbar() {
           </span>
         </button>
 
-        {/* Video (Future-Ready) */}
-        <button
-          onClick={() => showToast('Classroom video feed is prepared for next milestone.', 'info')}
-          title="Video camera (future-ready)"
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs font-semibold transition-all"
-        >
-          <Video className="w-4 h-4 text-slate-500" />
-          <span>Camera</span>
-        </button>
+        {/* Teacher Desktop Screen Share onto Blackboard */}
+        {isTeacher ? (
+          <button
+            onClick={() => screenShareService.toggleScreenShare()}
+            title={isScreenSharing ? 'Stop sharing desktop screen' : 'Share desktop screen onto blackboard'}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-md transition-all active:scale-95 ${
+              isScreenSharing
+                ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse shadow-rose-600/30 ring-2 ring-rose-400'
+                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20'
+            }`}
+          >
+            {isScreenSharing ? (
+              <ScreenShareOff className="w-4 h-4" />
+            ) : (
+              <ScreenShare className="w-4 h-4" />
+            )}
+            <span>{isScreenSharing ? 'Stop Screen' : 'Share Screen'}</span>
+          </button>
+        ) : isScreenSharing ? (
+          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-950/80 border border-indigo-700/60 text-indigo-300 text-xs font-semibold shadow-indigo-900/20">
+            <Monitor className="w-4 h-4 text-indigo-400 animate-pulse" />
+            <span>Screen: Live</span>
+          </div>
+        ) : null}
 
         {/* Raise Hand Button */}
         <button

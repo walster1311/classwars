@@ -359,6 +359,39 @@ export class ClassroomRoom extends Room<ClassroomState> {
       this.state.boardSlide = 0; // reset to first slide on topic switch
       this.broadcast('board_topic_changed', { topic: this.state.boardTopic, slide: 0 });
     });
+
+    // 17. Start Desktop Screen Share (Teacher only)
+    this.onMessage(MSG_TYPES.START_SCREENSHARE, (client, data: { presenterName?: string }) => {
+      const teacher = this.state.players.get(client.sessionId);
+      if (!teacher || teacher.role !== 'teacher') {
+        client.send('error', { message: 'Only the teacher can share their desktop screen.' });
+        return;
+      }
+      this.state.isScreenSharing = true;
+      this.state.screenSharePresenterId = client.sessionId;
+      this.state.screenSharePresenterName = data?.presenterName || teacher.displayName;
+      this.broadcast('screenshare_state_changed', {
+        isScreenSharing: true,
+        presenterId: client.sessionId,
+        presenterName: this.state.screenSharePresenterName
+      });
+      console.log(`[ClassroomRoom] Desktop screensharing started by ${this.state.screenSharePresenterName}`);
+    });
+
+    // 18. Stop Desktop Screen Share (Teacher only)
+    this.onMessage(MSG_TYPES.STOP_SCREENSHARE, (client) => {
+      const teacher = this.state.players.get(client.sessionId);
+      if (!teacher || teacher.role !== 'teacher') return;
+      this.state.isScreenSharing = false;
+      this.state.screenSharePresenterId = '';
+      this.state.screenSharePresenterName = '';
+      this.broadcast('screenshare_state_changed', {
+        isScreenSharing: false,
+        presenterId: '',
+        presenterName: ''
+      });
+      console.log('[ClassroomRoom] Desktop screensharing stopped');
+    });
   }
 
   onJoin(client: Client, options: JoinOptions) {
@@ -429,6 +462,18 @@ export class ClassroomRoom extends Room<ClassroomState> {
         seat.occupiedByName = '';
       }
       player.seatId = '';
+    }
+
+    // If teacher was sharing screen, terminate screenshare
+    if (this.state.isScreenSharing && this.state.screenSharePresenterId === client.sessionId) {
+      this.state.isScreenSharing = false;
+      this.state.screenSharePresenterId = '';
+      this.state.screenSharePresenterName = '';
+      this.broadcast('screenshare_state_changed', {
+        isScreenSharing: false,
+        presenterId: '',
+        presenterName: ''
+      });
     }
 
     if (consented) {

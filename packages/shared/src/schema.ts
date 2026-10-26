@@ -54,6 +54,9 @@ export class ClassroomState extends Schema {
   @type('boolean') isChatLocked: boolean = false;
   @type('string') boardTopic: string = 'biology';
   @type('number') boardSlide: number = 0;
+  @type('boolean') isScreenSharing: boolean = false;
+  @type('string') screenSharePresenterId: string = '';
+  @type('string') screenSharePresenterName: string = '';
   @type('number') sessionStartTime: number = Date.now();
   @type('boolean') isSessionActive: boolean = true;
 

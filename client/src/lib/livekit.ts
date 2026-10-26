@@ -62,16 +62,28 @@ class LiveKitService {
         });
       });
 
-      // Audio track subscriptions
+      // Media track subscriptions (Audio & Screen Share Video)
       this.room.on(RoomEvent.TrackSubscribed, (track: Track, publication: RemoteTrackPublication, participant: RemoteParticipant) => {
         if (track.kind === Track.Kind.Audio) {
           console.log(`[LiveKit] Subscribed to audio track from ${participant.identity}`);
           const element = track.attach();
           document.body.appendChild(element);
+        } else if (track.kind === Track.Kind.Video) {
+          console.log(`[LiveKit] Subscribed to video / screen track from ${participant.identity}`);
+          const element = track.attach() as HTMLVideoElement;
+          element.autoplay = true;
+          element.playsInline = true;
+          element.muted = true;
+          useClassroomStore.getState().setScreenStream(null, element);
+          useClassroomStore.getState().setScreenSharingState(true, participant.identity, participant.name || 'Teacher');
         }
       });
 
       this.room.on(RoomEvent.TrackUnsubscribed, (track: Track) => {
+        if (track.kind === Track.Kind.Video) {
+          useClassroomStore.getState().setScreenStream(null, null);
+          useClassroomStore.getState().setScreenSharingState(false, '', '');
+        }
         track.detach().forEach(el => el.remove());
       });
 
@@ -122,6 +134,29 @@ class LiveKitService {
       store.setMyMicMuted(!nextState);
       store.setSpeakingUser(store.mySessionId, nextState);
       return nextState;
+    }
+  }
+
+  async publishScreenTrack(stream: MediaStream) {
+    if (this.room && this.room.localParticipant) {
+      try {
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack) {
+          await this.room.localParticipant.publishTrack(videoTrack, { name: 'screen-share', source: Track.Source.ScreenShare });
+        }
+      } catch (err: any) {
+        console.warn('[LiveKit publishScreenTrack note]', err.message);
+      }
+    }
+  }
+
+  async unpublishScreenTrack() {
+    if (this.room && this.room.localParticipant) {
+      try {
+        await this.room.localParticipant.setScreenShareEnabled(false);
+      } catch (err: any) {
+        console.warn('[LiveKit unpublishScreenTrack note]', err.message);
+      }
     }
   }
 

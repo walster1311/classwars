@@ -194,7 +194,9 @@ export const MSG_TYPES = {
   KICK_PARTICIPANT: 'kick_participant',
   REACTION: 'reaction',
   CHANGE_BOARD_SLIDE: 'change_board_slide',
-  CHANGE_BOARD_TOPIC: 'change_board_topic'
+  CHANGE_BOARD_TOPIC: 'change_board_topic',
+  START_SCREENSHARE: 'start_screenshare',
+  STOP_SCREENSHARE: 'stop_screenshare'
 } as const;
 
 export * from './schema';
