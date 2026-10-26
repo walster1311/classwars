@@ -2,6 +2,67 @@ export type UserRole = 'teacher' | 'student';
 
 export type ClassroomMode = 'lecture' | 'discussion' | 'social' | 'group';
 
+export type CharacterType = 'boy' | 'girl';
+
+export type BoyHairstyleId =
+  | 'boy_classic_short'
+  | 'boy_spiky_anime'
+  | 'boy_side_part'
+  | 'boy_messy'
+  | 'boy_bowl_cut'
+  | 'boy_wavy';
+
+export type GirlHairstyleId =
+  | 'girl_long_straight'
+  | 'girl_bob_cut'
+  | 'girl_ponytail'
+  | 'girl_twin_tails'
+  | 'girl_short_wavy'
+  | 'girl_braided';
+
+export type HairstyleId = BoyHairstyleId | GirlHairstyleId;
+
+export type UniformId = 'boy_standard' | 'girl_standard';
+
+export interface ChibiCharacterConfig {
+  characterType: CharacterType;
+  hairstyleId: string;
+  uniformId: UniformId;
+  characterVersion: number;
+  selectionCompleted: boolean;
+}
+
+export interface HairstyleOption {
+  id: string;
+  name: string;
+  description: string;
+  gender: CharacterType;
+  accentColor?: string;
+}
+
+export const BOY_HAIRSTYLES: HairstyleOption[] = [
+  { id: 'boy_classic_short', name: 'Classic Short', description: 'Neat and trimmed student cut', gender: 'boy' },
+  { id: 'boy_spiky_anime', name: 'Spiky Anime', description: 'Dynamic anime hero spikes', gender: 'boy' },
+  { id: 'boy_side_part', name: 'Side Part', description: 'Smart side-swept gentleman look', gender: 'boy' },
+  { id: 'boy_messy', name: 'Messy Hair', description: 'Casual textured carefree locks', gender: 'boy' },
+  { id: 'boy_bowl_cut', name: 'Bowl Cut', description: 'Retro clean rounded fringe', gender: 'boy' },
+  { id: 'boy_wavy', name: 'Wavy Hair', description: 'Soft undulating wavy style', gender: 'boy' },
+];
+
+export const GIRL_HAIRSTYLES: HairstyleOption[] = [
+  { id: 'girl_long_straight', name: 'Long Straight', description: 'Flowing silky straight hair', gender: 'girl' },
+  { id: 'girl_bob_cut', name: 'Bob Cut', description: 'Chic shoulder-skimming bob with bangs', gender: 'girl' },
+  { id: 'girl_ponytail', name: 'Ponytail', description: 'High energetic ponytail with tie', gender: 'girl' },
+  { id: 'girl_twin_tails', name: 'Twin Tails', description: 'Iconic anime pigtails with ribbons', gender: 'girl' },
+  { id: 'girl_short_wavy', name: 'Short Wavy', description: 'Bouncy playful wavy curls', gender: 'girl' },
+  { id: 'girl_braided', name: 'Braided Hair', description: 'Twin neat traditional braids', gender: 'girl' },
+];
+
+export const APPROVED_HAIRSTYLES: Record<CharacterType, string[]> = {
+  boy: BOY_HAIRSTYLES.map((h) => h.id),
+  girl: GIRL_HAIRSTYLES.map((h) => h.id),
+};
+
 export interface SeatInfo {
   id: string;
   name: string;
@@ -21,6 +82,9 @@ export interface PlayerData {
   displayName: string;
   role: UserRole;
   avatarColor: string;
+  characterType?: CharacterType;
+  hairstyleId?: string;
+  uniformId?: UniformId;
   x: number;
   y: number;
   z: number;

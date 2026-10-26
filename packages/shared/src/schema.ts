@@ -8,6 +8,9 @@ export class PlayerState extends Schema {
   @type('string') displayName: string = '';
   @type('string') role: string = 'student';
   @type('string') avatarColor: string = '#4F46E5';
+  @type('string') characterType: string = 'boy';
+  @type('string') hairstyleId: string = 'boy_classic_short';
+  @type('string') uniformId: string = 'boy_standard';
   @type('number') x: number = 0;
   @type('number') y: number = 0;
   @type('number') z: number = 0;

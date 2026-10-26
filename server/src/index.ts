@@ -6,6 +6,7 @@ import { Server } from 'colyseus';
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { AccessToken } from 'livekit-server-sdk';
 import { ClassroomRoom } from './rooms/ClassroomRoom';
+import { profileStore } from './profileStore';
 
 dotenv.config();
 
@@ -94,6 +95,63 @@ app.post('/api/classrooms', (req, res) => {
   };
   classroomStore.set(id, newRoom);
   res.status(201).json(newRoom);
+});
+
+// 3b. Student Character Profile retrieval
+app.get('/api/profiles/:userId/character', (req, res) => {
+  const { userId } = req.params;
+  const character = profileStore.getCharacter(userId);
+  if (!character || !character.selectionCompleted) {
+    return res.json({ hasCharacter: false });
+  }
+  return res.json({ hasCharacter: true, character });
+});
+
+// 3c. Student Character Profile saving (with strict validation)
+app.post('/api/profiles/:userId/character', (req, res) => {
+  const { userId } = req.params;
+  const { characterType, hairstyleId, displayName, role } = req.body;
+
+  if (!characterType || !hairstyleId) {
+    return res.status(400).json({ error: 'characterType and hairstyleId are required.' });
+  }
+
+  const result = profileStore.saveCharacter(userId, {
+    characterType,
+    hairstyleId,
+    displayName,
+    role: role || 'student'
+  });
+
+  if (!result.success) {
+    return res.status(400).json({ error: result.error });
+  }
+
+  return res.status(200).json({ success: true, character: result.character });
+});
+
+// 3d. Classroom Entry Validation Guard (Enforces character selection requirement)
+app.get('/api/profiles/:userId/validate-entry', (req, res) => {
+  const { userId } = req.params;
+  const role = req.query.role as string;
+
+  if (role === 'teacher') {
+    return res.json({ allowed: true });
+  }
+
+  const hasCharacter = profileStore.hasValidCharacter(userId);
+  if (!hasCharacter) {
+    return res.json({
+      allowed: false,
+      redirectTo: '/character-selection',
+      reason: 'Character selection is required before entering the classroom.'
+    });
+  }
+
+  return res.json({
+    allowed: true,
+    character: profileStore.getCharacter(userId)
+  });
 });
 
 // 4. LiveKit Token Dispenser (Voice Communication with Server-Enforced Permissions)

@@ -6,6 +6,7 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { ClientPlayer, useClassroomStore } from '@/lib/store';
 import { getPlayerTransform } from '@/lib/transforms';
+import { ChibiModel } from '../character/ChibiModel';
 
 interface AvatarProps {
   player: ClientPlayer;
@@ -254,99 +255,107 @@ export const Avatar = React.memo(function Avatar({ player, isLocal }: AvatarProp
         </div>
       </Html>
 
-      {/* 3D Humanoid Torso, Head & Arms */}
-      <group ref={bodyRef} position={[0, 0.72, 0]}>
-        {/* Head */}
-        <mesh position={[0, 0.44, 0]} castShadow>
-          <sphereGeometry args={[0.22, 16, 16]} />
-          <meshStandardMaterial color="#fcd34d" roughness={0.4} />
-        </mesh>
+      {/* 3D Model: Chibi Character for Students, Executive Model for Teacher */}
+      {isTeacher ? (
+        <>
+          <group ref={bodyRef} position={[0, 0.72, 0]}>
+            {/* Head */}
+            <mesh position={[0, 0.44, 0]} castShadow>
+              <sphereGeometry args={[0.22, 16, 16]} />
+              <meshStandardMaterial color="#fcd34d" roughness={0.4} />
+            </mesh>
 
-        {/* Eyes (Facing local +Z) */}
-        <mesh position={[-0.07, 0.46, 0.19]}>
-          <sphereGeometry args={[0.035, 8, 8]} />
-          <meshBasicMaterial color="#0f172a" />
-        </mesh>
-        <mesh position={[0.07, 0.46, 0.19]}>
-          <sphereGeometry args={[0.035, 8, 8]} />
-          <meshBasicMaterial color="#0f172a" />
-        </mesh>
+            {/* Eyes (Facing local +Z) */}
+            <mesh position={[-0.07, 0.46, 0.19]}>
+              <sphereGeometry args={[0.035, 8, 8]} />
+              <meshBasicMaterial color="#0f172a" />
+            </mesh>
+            <mesh position={[0.07, 0.46, 0.19]}>
+              <sphereGeometry args={[0.035, 8, 8]} />
+              <meshBasicMaterial color="#0f172a" />
+            </mesh>
 
-        {/* Hair / Cap */}
-        <mesh position={[0, 0.54, -0.02]} castShadow>
-          <sphereGeometry args={[0.23, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
-          <meshStandardMaterial color={isTeacher ? '#475569' : '#b45309'} />
-        </mesh>
+            {/* Hair / Cap */}
+            <mesh position={[0, 0.54, -0.02]} castShadow>
+              <sphereGeometry args={[0.23, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+              <meshStandardMaterial color="#475569" />
+            </mesh>
 
-        {/* Torso / Shirt */}
-        <mesh position={[0, 0, 0]} castShadow>
-          <boxGeometry args={[0.42, 0.48, 0.28]} />
-          <meshStandardMaterial color={shirtColor} roughness={0.5} />
-        </mesh>
+            {/* Torso / Shirt */}
+            <mesh position={[0, 0, 0]} castShadow>
+              <boxGeometry args={[0.42, 0.48, 0.28]} />
+              <meshStandardMaterial color={shirtColor} roughness={0.5} />
+            </mesh>
 
-        {/* Teacher Necktie */}
-        {isTeacher && (
-          <mesh position={[0, 0.08, 0.15]}>
-            <boxGeometry args={[0.08, 0.24, 0.02]} />
-            <meshStandardMaterial color="#ef4444" />
+            {/* Teacher Necktie */}
+            <mesh position={[0, 0.08, 0.15]}>
+              <boxGeometry args={[0.08, 0.24, 0.02]} />
+              <meshStandardMaterial color="#ef4444" />
+            </mesh>
+
+            {/* Left Arm */}
+            <group ref={leftArmRef} position={[-0.27, 0.18, 0]}>
+              <mesh position={[0, -0.2, 0]} castShadow>
+                <cylinderGeometry args={[0.065, 0.06, 0.4]} />
+                <meshStandardMaterial color={shirtColor} />
+              </mesh>
+              {/* Hand */}
+              <mesh position={[0, -0.42, 0]}>
+                <sphereGeometry args={[0.07, 8, 8]} />
+                <meshStandardMaterial color="#fcd34d" />
+              </mesh>
+            </group>
+
+            {/* Right Arm */}
+            <group ref={rightArmRef} position={[0.27, 0.18, 0]}>
+              <mesh position={[0, -0.2, 0]} castShadow>
+                <cylinderGeometry args={[0.065, 0.06, 0.4]} />
+                <meshStandardMaterial color={shirtColor} />
+              </mesh>
+              {/* Hand */}
+              <mesh position={[0, -0.42, 0]}>
+                <sphereGeometry args={[0.07, 8, 8]} />
+                <meshStandardMaterial color="#fcd34d" />
+              </mesh>
+            </group>
+          </group>
+
+          {/* Articulated Teacher Legs */}
+          <mesh ref={leftThighRef} castShadow>
+            <cylinderGeometry args={[0.075, 0.07, 0.26]} />
+            <meshStandardMaterial color="#1e293b" />
           </mesh>
-        )}
-
-        {/* Left Arm */}
-        <group ref={leftArmRef} position={[-0.27, 0.18, 0]}>
-          <mesh position={[0, -0.2, 0]} castShadow>
-            <cylinderGeometry args={[0.065, 0.06, 0.4]} />
-            <meshStandardMaterial color={shirtColor} />
+          <mesh ref={leftShinRef} castShadow>
+            <cylinderGeometry args={[0.065, 0.06, 0.28]} />
+            <meshStandardMaterial color="#1e293b" />
           </mesh>
-          {/* Hand */}
-          <mesh position={[0, -0.42, 0]}>
-            <sphereGeometry args={[0.07, 8, 8]} />
-            <meshStandardMaterial color="#fcd34d" />
+          <mesh ref={leftFootRef} castShadow>
+            <boxGeometry args={[0.10, 0.06, 0.15]} />
+            <meshStandardMaterial color="#0f172a" />
           </mesh>
-        </group>
 
-        {/* Right Arm */}
-        <group ref={rightArmRef} position={[0.27, 0.18, 0]}>
-          <mesh position={[0, -0.2, 0]} castShadow>
-            <cylinderGeometry args={[0.065, 0.06, 0.4]} />
-            <meshStandardMaterial color={shirtColor} />
+          <mesh ref={rightThighRef} castShadow>
+            <cylinderGeometry args={[0.075, 0.07, 0.26]} />
+            <meshStandardMaterial color="#1e293b" />
           </mesh>
-          {/* Hand */}
-          <mesh position={[0, -0.42, 0]}>
-            <sphereGeometry args={[0.07, 8, 8]} />
-            <meshStandardMaterial color="#fcd34d" />
+          <mesh ref={rightShinRef} castShadow>
+            <cylinderGeometry args={[0.065, 0.06, 0.28]} />
+            <meshStandardMaterial color="#1e293b" />
           </mesh>
-        </group>
-      </group>
-
-      {/* ================= ARTICULATED LEGS (THIGHS, SHINS & FEET) ================= */}
-      {/* Left Leg */}
-      <mesh ref={leftThighRef} castShadow>
-        <cylinderGeometry args={[0.075, 0.07, 0.26]} />
-        <meshStandardMaterial color="#1e293b" />
-      </mesh>
-      <mesh ref={leftShinRef} castShadow>
-        <cylinderGeometry args={[0.065, 0.06, 0.28]} />
-        <meshStandardMaterial color="#1e293b" />
-      </mesh>
-      <mesh ref={leftFootRef} castShadow>
-        <boxGeometry args={[0.10, 0.06, 0.15]} />
-        <meshStandardMaterial color="#0f172a" />
-      </mesh>
-
-      {/* Right Leg */}
-      <mesh ref={rightThighRef} castShadow>
-        <cylinderGeometry args={[0.075, 0.07, 0.26]} />
-        <meshStandardMaterial color="#1e293b" />
-      </mesh>
-      <mesh ref={rightShinRef} castShadow>
-        <cylinderGeometry args={[0.065, 0.06, 0.28]} />
-        <meshStandardMaterial color="#1e293b" />
-      </mesh>
-      <mesh ref={rightFootRef} castShadow>
-        <boxGeometry args={[0.10, 0.06, 0.15]} />
-        <meshStandardMaterial color="#0f172a" />
-      </mesh>
+          <mesh ref={rightFootRef} castShadow>
+            <boxGeometry args={[0.10, 0.06, 0.15]} />
+            <meshStandardMaterial color="#0f172a" />
+          </mesh>
+        </>
+      ) : (
+        <ChibiModel
+          gender={player.characterType || 'boy'}
+          hairstyleId={player.hairstyleId || (player.characterType === 'girl' ? 'girl_twin_tails' : 'boy_spiky_anime')}
+          animation={isSitting ? 'sit' : (isWalking ? 'walk' : (isHandRaised ? 'raise_hand' : 'idle'))}
+          sessionId={player.sessionId}
+          scale={1.05}
+        />
+      )}
     </group>
   );
 });

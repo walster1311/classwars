@@ -41,7 +41,9 @@ export default function ClassroomPage() {
   const role = (searchParams.get('role') as UserRole) || 'student';
   const displayName = searchParams.get('name') || (role === 'teacher' ? 'Dr. Evelyn Reed' : `Student ${Math.floor(Math.random() * 900 + 100)}`);
   const avatarColor = searchParams.get('color') || (role === 'teacher' ? '#2563EB' : '#10B981');
-  const userId = searchParams.get('uid') || `user_${Math.random().toString(36).substring(2, 9)}`;
+  const rawNameId = displayName ? displayName.toLowerCase().replace(/[^a-z0-9]/g, '_') : '';
+  const defaultId = rawNameId.startsWith('student_') ? rawNameId : (rawNameId ? `student_${rawNameId}` : '');
+  const userId = searchParams.get('uid') || defaultId || `usr_${Math.random().toString(36).substring(2, 9)}`;
 
   const isConnected = useClassroomStore((s) => s.isConnected);
 
@@ -50,13 +52,45 @@ export default function ClassroomPage() {
     setConnectionError(null);
 
     try {
+      let characterType = (searchParams.get('char') as any) || undefined;
+      let hairstyleId = searchParams.get('hair') || undefined;
+      let uniformId: any = undefined;
+
+      // Server-Enforced Route Protection for Students:
+      if (role === 'student') {
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+        const checkRes = await fetch(`${serverUrl}/api/profiles/${userId}/validate-entry?role=student`).catch(() => null);
+        if (checkRes && checkRes.ok) {
+          const checkData = await checkRes.json();
+          if (!checkData.allowed) {
+            console.log('[Route Guard] Student character selection required. Redirecting to /character-selection');
+            const query = new URLSearchParams({
+              classroomId,
+              role: 'student',
+              name: displayName,
+              color: avatarColor,
+              uid: userId
+            });
+            router.push(`/character-selection?${query.toString()}`);
+            return;
+          } else if (checkData.character) {
+            characterType = checkData.character.characterType;
+            hairstyleId = checkData.character.hairstyleId;
+            uniformId = checkData.character.uniformId;
+          }
+        }
+      }
+
       // 1. Connect to Colyseus Authoritative Multiplayer Room
       const room = await colyseusService.connectToClassroom({
         classroomId,
         displayName,
         role,
         avatarColor,
-        userId
+        userId,
+        characterType,
+        hairstyleId,
+        uniformId
       });
 
       // 2. Initialize LiveKit Voice Audio Engine

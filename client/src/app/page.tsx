@@ -45,26 +45,74 @@ export default function LobbyPage() {
     }
   };
 
-  const handleEnterClassroom = (e?: React.FormEvent) => {
+  const handleEnterClassroom = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const targetRoom = (classroomId || 'bio-101').trim().toLowerCase();
+
+    // Use or create a persistent client user ID
+    let uid = typeof window !== 'undefined' ? localStorage.getItem('classverse_user_id') : null;
+    if (!uid) {
+      uid = `usr_${Math.random().toString(36).substring(2, 9)}`;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('classverse_user_id', uid);
+      }
+    }
+
     const query = new URLSearchParams({
       role,
       name: displayName || (role === 'teacher' ? 'Teacher' : 'Student'),
       color: selectedColor,
-      uid: `usr_${Math.random().toString(36).substring(2, 9)}`
+      uid
     });
+
+    if (role === 'student') {
+      try {
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+        const res = await fetch(`${serverUrl}/api/profiles/${uid}/validate-entry?role=student`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.allowed) {
+            router.push(`/character-selection?${query.toString()}&classroomId=${targetRoom}`);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('[Lobby] Profile validation error:', err);
+      }
+    }
+
     router.push(`/classroom/${targetRoom}?${query.toString()}`);
   };
 
-  const launchTestSession = (testRole: UserRole, testName: string, testColor: string) => {
+  const launchTestSession = async (testRole: UserRole, testName: string, testColor: string) => {
     const targetRoom = (classroomId || 'bio-101').trim().toLowerCase();
+    const isAlex = testName.toLowerCase().includes('alex');
+    const isMaya = testName.toLowerCase().includes('maya');
+    const uid = isAlex ? 'student_alex' : isMaya ? 'student_maya' : `usr_${Math.random().toString(36).substring(2, 9)}`;
+
     const query = new URLSearchParams({
       role: testRole,
       name: testName,
       color: testColor,
-      uid: `usr_${Math.random().toString(36).substring(2, 9)}`
+      uid
     });
+
+    if (testRole === 'student') {
+      try {
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+        const res = await fetch(`${serverUrl}/api/profiles/${uid}/validate-entry?role=student`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.allowed) {
+            window.open(`/character-selection?${query.toString()}&classroomId=${targetRoom}`, '_blank');
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('[Lobby] Test session validation error:', err);
+      }
+    }
+
     window.open(`/classroom/${targetRoom}?${query.toString()}`, '_blank');
   };
 

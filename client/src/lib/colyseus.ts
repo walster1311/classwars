@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus.js';
-import { ClassroomState, MSG_TYPES, UserRole, ClassroomMode } from '@classverse/shared';
+import { ClassroomState, MSG_TYPES, UserRole, ClassroomMode, CharacterType, UniformId } from '@classverse/shared';
 import { useClassroomStore } from './store';
 import { setPlayerTransform, removePlayerTransform, clearPlayerTransforms } from './transforms';
 
@@ -22,6 +22,9 @@ class ColyseusService {
     role: UserRole;
     avatarColor: string;
     userId: string;
+    characterType?: CharacterType;
+    hairstyleId?: string;
+    uniformId?: UniformId;
   }): Promise<Room<ClassroomState>> {
     const store = useClassroomStore.getState();
 
@@ -44,7 +47,10 @@ class ColyseusService {
         displayName: options.displayName,
         role: options.role,
         avatarColor: options.avatarColor,
-        userId: options.userId
+        userId: options.userId,
+        characterType: options.characterType,
+        hairstyleId: options.hairstyleId,
+        uniformId: options.uniformId
       });
 
       store.setClientInfo({
@@ -98,6 +104,9 @@ class ColyseusService {
         displayName: player.displayName,
         role: player.role as UserRole,
         avatarColor: player.avatarColor,
+        characterType: player.characterType,
+        hairstyleId: player.hairstyleId,
+        uniformId: player.uniformId,
         x: player.x,
         y: player.y,
         z: player.z,
@@ -121,12 +130,15 @@ class ColyseusService {
           animation: player.animation
         });
 
-        // Only dispatch to Zustand if metadata (seat, mic, hand, role, name) actually changed
+        // Only dispatch to Zustand if metadata (seat, mic, hand, role, name, character) actually changed
         const cur = useClassroomStore.getState().players[sessionId];
         const metaChanged = !cur ||
           cur.displayName !== player.displayName ||
           cur.role !== player.role ||
           cur.avatarColor !== player.avatarColor ||
+          cur.characterType !== player.characterType ||
+          cur.hairstyleId !== player.hairstyleId ||
+          cur.uniformId !== player.uniformId ||
           cur.seatId !== (player.seatId || null) ||
           cur.isHandRaised !== player.isHandRaised ||
           cur.canSpeak !== player.canSpeak ||
@@ -138,6 +150,9 @@ class ColyseusService {
             displayName: player.displayName,
             role: player.role as UserRole,
             avatarColor: player.avatarColor,
+            characterType: player.characterType,
+            hairstyleId: player.hairstyleId,
+            uniformId: player.uniformId,
             seatId: player.seatId || null,
             isHandRaised: player.isHandRaised,
             canSpeak: player.canSpeak,

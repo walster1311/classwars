@@ -1,6 +1,7 @@
 import { Room, Client } from 'colyseus';
 import { ClassroomState, PlayerState, ChatMessageState, SeatState } from '@classverse/shared';
-import { MSG_TYPES, CLASSROOM_BOUNDS } from '@classverse/shared';
+import { MSG_TYPES, CLASSROOM_BOUNDS, CharacterType, UniformId } from '@classverse/shared';
+import { profileStore } from '../profileStore';
 
 interface JoinOptions {
   userId?: string;
@@ -9,6 +10,9 @@ interface JoinOptions {
   avatarColor?: string;
   classroomId?: string;
   title?: string;
+  characterType?: CharacterType;
+  hairstyleId?: string;
+  uniformId?: UniformId;
 }
 
 export class ClassroomRoom extends Room<ClassroomState> {
@@ -378,6 +382,25 @@ export class ClassroomRoom extends Room<ClassroomState> {
       player.z = -9.0;
       player.rotY = 0; // facing students (+Z)
     } else {
+      // Enforce student character selection
+      if (options.characterType && options.hairstyleId) {
+        profileStore.saveCharacter(player.userId, {
+          characterType: options.characterType,
+          hairstyleId: options.hairstyleId,
+          displayName: player.displayName,
+          role: 'student'
+        });
+      }
+
+      const character = profileStore.getCharacter(player.userId);
+      if (!character || !character.selectionCompleted) {
+        throw new Error('Mandatory character selection required before entering classroom.');
+      }
+
+      player.characterType = character.characterType;
+      player.hairstyleId = character.hairstyleId;
+      player.uniformId = character.uniformId;
+
       // Students spawn near classroom door / back
       // Stagger slightly so multiple joining students don't overlap exactly
       const offset = (this.state.players.size % 9) * 0.8 - 3.2;

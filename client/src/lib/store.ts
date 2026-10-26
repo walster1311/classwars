@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { UserRole, ClassroomMode, SeatInfo, CLASSROOM_SEATS } from '@classverse/shared';
+import { UserRole, ClassroomMode, SeatInfo, CLASSROOM_SEATS, CharacterType, UniformId } from '@classverse/shared';
 
 export interface ChatMessage {
   id: string;
@@ -18,6 +18,9 @@ export interface ClientPlayer {
   displayName: string;
   role: UserRole;
   avatarColor: string;
+  characterType?: CharacterType;
+  hairstyleId?: string;
+  uniformId?: UniformId;
   x: number;
   y: number;
   z: number;
