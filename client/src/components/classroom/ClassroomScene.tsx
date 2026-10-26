@@ -11,7 +11,6 @@ import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
 import { SmartBoard } from './props/SmartBoard';
 import { ClassroomClock } from './props/ClassroomClock';
-import { RealisticClassroomWindow } from './props/RealisticClassroomWindow';
 import {
   TeacherDeskMesh,
   DetailedBookshelf,
@@ -281,62 +280,20 @@ export function ClassroomScene() {
         </group>
       </group>
 
-      {/* 3. LEFT UPPER WALL WITH AUTHENTIC APERTURES & WINDOW REVEALS (X = -13.1) */}
+      {/* 3. LEFT UPPER WALL (SOLID ARCHITECTURAL WALL) (X = -13.1) */}
       <group ref={leftWallRef} position={[0, 0.58, 0]}>
-        {/* Continuous Lower Spandrel Wall under windows (Y: 0 to 0.85) */}
-        <mesh position={[-13.1, 0.425, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 0.85, 29.4]} />
+        {/* Full Solid Structural Wall */}
+        <mesh position={[-13.1, 2.21, 0]} receiveShadow>
+          <boxGeometry args={[0.2, 4.42, 29.4]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.7} />
         </mesh>
-        {/* Wainscoting on lower wall */}
+        {/* Architectural Wainscoting */}
         <mesh position={[-12.99, 0.35, 0]}>
           <boxGeometry args={[0.04, 0.7, 29.4]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
         </mesh>
 
-        {/* Continuous Upper Header Wall above windows (Y: 3.45 to 4.42) */}
-        <mesh position={[-13.1, 3.935, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 0.97, 29.4]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
-        </mesh>
-
-        {/* Structural Wall Piers between Window Openings (Y: 0.85 to 3.45, Height: 2.6) */}
-        {/* Pier 1: Front Corner to Window 1 (Z: -14.7 to -10.6) */}
-        <mesh position={[-13.1, 2.15, -12.65]} receiveShadow>
-          <boxGeometry args={[0.2, 2.6, 4.1]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
-        </mesh>
-        {/* Pier 2: Between Window 1 & 2 (Z: -7.4 to -4.6) */}
-        <mesh position={[-13.1, 2.15, -6.0]} receiveShadow>
-          <boxGeometry args={[0.2, 2.6, 2.8]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
-        </mesh>
-        {/* Pier 3: Center Wall between Window 2 & 3 (Z: -1.4 to 1.4, holds Bulletin Board) */}
-        <mesh position={[-13.1, 2.15, 0.0]} receiveShadow>
-          <boxGeometry args={[0.2, 2.6, 2.8]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
-        </mesh>
-        {/* Pier 4: Between Window 3 & 4 (Z: 4.6 to 7.4) */}
-        <mesh position={[-13.1, 2.15, 6.0]} receiveShadow>
-          <boxGeometry args={[0.2, 2.6, 2.8]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
-        </mesh>
-        {/* Pier 5: Window 4 to Rear Corner (Z: 10.6 to 14.7) */}
-        <mesh position={[-13.1, 2.15, 12.65]} receiveShadow>
-          <boxGeometry args={[0.2, 2.6, 4.1]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.7} />
-        </mesh>
-
-        {/* 4 Architectural Realistic Windows with Outdoor Campus Vista */}
-        {[-9.0, -3.0, 3.0, 9.0].map((zPos, idx) => (
-          <RealisticClassroomWindow
-            key={`win-${idx}`}
-            index={idx}
-            position={[-13.1, 2.15, zPos]}
-          />
-        ))}
-
-        {/* Cork Bulletin Board Mounted on Center Wall Pier 3 */}
+        {/* Cork Bulletin Board Mounted on Center Left Wall */}
         <group position={[0, -0.58, 0]}>
           <BulletinBoardMesh position={[-12.95, 2.5, 0.0]} />
         </group>
