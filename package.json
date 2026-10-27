@@ -8,6 +8,7 @@
     "client"
   ],
   "scripts": {
+    "dev": "node scripts/dev.js",
     "dev:server": "npm --workspace=server run dev",
     "dev:client": "npm --workspace=@classverse/client run dev",
     "build:shared": "npm --workspace=@classverse/shared run build",
@@ -15,6 +16,9 @@
     "build:client": "npm --workspace=@classverse/client run build",
     "build": "npm run build:shared && npm run build:client",
     "build:all": "npm run build:shared && npm run build:server && npm run build:client",
+    "start": "node scripts/start.js",
+    "start:server": "npm --workspace=server run start",
+    "start:client": "npm --workspace=@classverse/client run start",
     "test": "npx playwright test"
   },
   "devDependencies": {

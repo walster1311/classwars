@@ -1,20 +1,171 @@
 import { Client, Room } from 'colyseus.js';
-import { ClassroomState, MSG_TYPES, UserRole, ClassroomMode, CharacterType, UniformId, TeacherInteractionsUpdateData } from '@classverse/shared';
+import { ClassroomState, MSG_TYPES, UserRole, ClassroomMode, CharacterType, UniformId, TeacherInteractionsUpdateData, CLASSROOM_SEATS } from '@classverse/shared';
 import { useClassroomStore } from './store';
 import { setPlayerTransform, removePlayerTransform, clearPlayerTransforms } from './transforms';
 import { soundEffects } from './soundFx';
+import { getServerWsUrl } from './serverConfig';
 
 class ColyseusService {
   private client: Client | null = null;
   private room: Room<ClassroomState> | null = null;
   private serverUrl: string = '';
+  private isOffline: boolean = false;
 
   constructor() {
     if (typeof window !== 'undefined') {
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `ws://${window.location.hostname}:2567`;
+      const wsUrl = getServerWsUrl();
       this.serverUrl = wsUrl;
-      this.client = new Client(wsUrl);
+      try {
+        this.client = new Client(wsUrl);
+      } catch (e) {
+        console.warn('[Colyseus] Could not construct client initially:', e);
+      }
     }
+  }
+
+  isOfflineActive(): boolean {
+    return this.isOffline;
+  }
+
+  startOfflineSession(options: {
+    classroomId: string;
+    displayName: string;
+    role: UserRole;
+    avatarColor: string;
+    userId: string;
+    characterType?: CharacterType;
+    hairstyleId?: string;
+    uniformId?: UniformId;
+  }) {
+    this.isOffline = true;
+    if (this.room) {
+      this.room.leave();
+      this.room = null;
+    }
+
+    const store = useClassroomStore.getState();
+    const sessionId = `local_${options.userId || 'player'}`;
+
+    store.setClientInfo({
+      sessionId,
+      name: options.displayName,
+      role: options.role,
+      color: options.avatarColor
+    });
+
+    const charType: CharacterType = options.characterType || 'boy';
+    const hair = options.hairstyleId || (charType === 'boy' ? 'boy_spiky_anime' : 'girl_twin_tails');
+    const defaultUniform: UniformId = charType === 'boy' ? 'boy_standard' : 'girl_standard';
+    const uniform: UniformId = options.uniformId || defaultUniform;
+
+    // Local player in classroom
+    const localPlayer = {
+      id: options.userId,
+      sessionId,
+      userId: options.userId,
+      displayName: options.displayName,
+      role: options.role,
+      avatarColor: options.avatarColor,
+      characterType: charType,
+      hairstyleId: hair,
+      uniformId: uniform,
+      x: 0,
+      y: 0,
+      z: 2.2,
+      rotY: 0,
+      animation: 'idle',
+      seatId: null,
+      isHandRaised: false,
+      canSpeak: true,
+      isMuted: false,
+      handRaiseTime: 0
+    };
+
+    // 2 Friendly NPC Chibi Classmates seated at desks
+    const npcSakura = {
+      id: 'npc_sakura',
+      sessionId: 'sess_sakura',
+      userId: 'npc_sakura',
+      displayName: 'Sakura Chibi',
+      role: 'student' as UserRole,
+      avatarColor: '#EC4899',
+      characterType: 'girl' as CharacterType,
+      hairstyleId: 'girl_twin_tails',
+      uniformId: 'girl_standard' as UniformId,
+      x: -1.8,
+      y: 0.42,
+      z: 1.0,
+      rotY: 0,
+      animation: 'sitting',
+      seatId: 'seat_0_1',
+      isHandRaised: false,
+      canSpeak: false,
+      isMuted: false,
+      handRaiseTime: 0
+    };
+
+    const npcKenji = {
+      id: 'npc_kenji',
+      sessionId: 'sess_kenji',
+      userId: 'npc_kenji',
+      displayName: 'Kenji Chibi',
+      role: 'student' as UserRole,
+      avatarColor: '#3B82F6',
+      characterType: 'boy' as CharacterType,
+      hairstyleId: 'boy_spiky_anime',
+      uniformId: 'boy_standard' as UniformId,
+      x: 1.8,
+      y: 0.42,
+      z: 1.0,
+      rotY: 0,
+      animation: 'sitting',
+      seatId: 'seat_0_3',
+      isHandRaised: false,
+      canSpeak: false,
+      isMuted: false,
+      handRaiseTime: 0
+    };
+
+    store.setPlayers({
+      [sessionId]: localPlayer,
+      [npcSakura.sessionId]: npcSakura,
+      [npcKenji.sessionId]: npcKenji
+    });
+
+    // Populate seats
+    const seatMap: Record<string, { occupiedBy: string; occupiedByName: string }> = {};
+    CLASSROOM_SEATS.forEach((s) => {
+      seatMap[s.id] = { occupiedBy: '', occupiedByName: '' };
+    });
+    seatMap['seat_0_1'] = { occupiedBy: npcSakura.sessionId, occupiedByName: npcSakura.displayName };
+    seatMap['seat_0_3'] = { occupiedBy: npcKenji.sessionId, occupiedByName: npcKenji.displayName };
+    store.initSeats(seatMap);
+
+    // Initial transforms for 3D render loop
+    setPlayerTransform(sessionId, { x: localPlayer.x, y: localPlayer.y, z: localPlayer.z, rotY: 0, animation: 'idle' });
+    setPlayerTransform(npcSakura.sessionId, { x: npcSakura.x, y: npcSakura.y, z: npcSakura.z, rotY: 0, animation: 'sitting' });
+    setPlayerTransform(npcKenji.sessionId, { x: npcKenji.x, y: npcKenji.y, z: npcKenji.z, rotY: 0, animation: 'sitting' });
+
+    store.setConnectionStatus(true, false);
+    store.setClassroomDetails({
+      id: options.classroomId,
+      title: 'Classroom (Offline Sandbox)',
+      mode: 'discussion',
+      isChatLocked: false
+    });
+    store.setBoardState('biology', 0);
+    store.setFunInteractionsConfig({
+      funActionsMode: 'break',
+      allowPaperBall: true,
+      allowHighFive: true,
+      allowDanceBattle: true,
+      allowEmoji: true,
+      allowFollow: true,
+      allowPowerUp: true,
+      allowPaperAirplane: true
+    });
+
+    store.showToast('🎮 Welcome to Sandbox Mode! Explore 3D classroom, actions & animations.', 'success');
   }
 
   async connectToClassroom(options: {
@@ -27,6 +178,7 @@ class ColyseusService {
     hairstyleId?: string;
     uniformId?: UniformId;
   }): Promise<Room<ClassroomState>> {
+    this.isOffline = false;
     const store = useClassroomStore.getState();
 
     if (this.room) {
@@ -35,13 +187,12 @@ class ColyseusService {
       this.room = null;
     }
 
-    if (!this.client) {
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `ws://${window.location.hostname}:2567`;
-      this.client = new Client(wsUrl);
-    }
+    const wsUrl = getServerWsUrl();
+    this.serverUrl = wsUrl;
+    this.client = new Client(wsUrl);
 
     try {
-      console.log(`[Colyseus] Connecting to classroom "${options.classroomId}" as ${options.displayName} (${options.role})`);
+      console.log(`[Colyseus] Connecting to classroom "${options.classroomId}" as ${options.displayName} (${options.role}) at ${wsUrl}`);
       
       this.room = await this.client.joinOrCreate<ClassroomState>('classroom', {
         classroomId: options.classroomId,
@@ -420,100 +571,233 @@ class ColyseusService {
 
   // Action methods
   sendMove(x: number, y: number, z: number, rotY: number, animation: string = 'idle') {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.MOVE, { x, y, z, rotY, animation });
+    if (this.room) {
+      this.room.send(MSG_TYPES.MOVE, { x, y, z, rotY, animation });
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.upsertPlayer(store.mySessionId, { x, y, z, rotY, animation });
+    }
   }
 
   sendSit(seatId: string) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.SIT, { seatId });
+    if (this.room) {
+      this.room.send(MSG_TYPES.SIT, { seatId });
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      const seat = CLASSROOM_SEATS.find((s) => s.id === seatId);
+      if (seat) {
+        store.updateSeat(seatId, store.mySessionId, store.myDisplayName);
+        store.setMySeat(seatId);
+        const yPos = 0.42;
+        const rotY = seat.isTeacherSeat ? seat.rotY : 0;
+        store.upsertPlayer(store.mySessionId, {
+          seatId,
+          x: seat.x,
+          y: yPos,
+          z: seat.z,
+          rotY,
+          animation: 'sitting'
+        });
+        setPlayerTransform(store.mySessionId, {
+          x: seat.x,
+          y: yPos,
+          z: seat.z,
+          rotY,
+          animation: 'sitting'
+        });
+        store.showToast('Sat down at desk', 'info');
+      }
+    }
   }
 
   sendStand() {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.STAND, {});
+    if (this.room) {
+      this.room.send(MSG_TYPES.STAND, {});
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      if (store.mySeatId) {
+        store.updateSeat(store.mySeatId, '', '');
+      }
+      store.setMySeat(null);
+      const cur = store.players[store.mySessionId];
+      const newZ = (cur ? cur.z : 0) + 0.6;
+      store.upsertPlayer(store.mySessionId, {
+        seatId: null,
+        y: 0,
+        z: newZ,
+        animation: 'idle'
+      });
+      setPlayerTransform(store.mySessionId, {
+        y: 0,
+        z: newZ,
+        animation: 'idle'
+      });
+      store.showToast('Stood up from desk', 'info');
+    }
   }
 
   sendRaiseHand() {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.RAISE_HAND, {});
-    useClassroomStore.getState().setMyHandRaised(true);
+    if (this.room) {
+      this.room.send(MSG_TYPES.RAISE_HAND, {});
+      useClassroomStore.getState().setMyHandRaised(true);
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.setMyHandRaised(true);
+      store.upsertPlayer(store.mySessionId, { isHandRaised: true, handRaiseTime: Date.now() });
+      store.showToast('Raised hand ✋', 'info');
+    }
   }
 
   sendLowerHand(targetSessionId?: string) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.LOWER_HAND, { targetSessionId });
-    if (!targetSessionId || targetSessionId === this.room.sessionId) {
-      useClassroomStore.getState().setMyHandRaised(false);
+    if (this.room) {
+      this.room.send(MSG_TYPES.LOWER_HAND, { targetSessionId });
+      if (!targetSessionId || targetSessionId === this.room.sessionId) {
+        useClassroomStore.getState().setMyHandRaised(false);
+      }
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.setMyHandRaised(false);
+      store.upsertPlayer(store.mySessionId, { isHandRaised: false });
+      store.showToast('Lowered hand', 'info');
     }
   }
 
   sendApproveHand(targetSessionId: string) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.APPROVE_HAND, { targetSessionId });
+    if (this.room) {
+      this.room.send(MSG_TYPES.APPROVE_HAND, { targetSessionId });
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.setCanSpeak(true);
+      store.upsertPlayer(targetSessionId, { canSpeak: true, isHandRaised: false });
+      store.showToast('Permission granted to speak', 'success');
+    }
   }
 
   sendSetMicPermission(targetSessionId: string, canSpeak: boolean) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.SET_MIC_PERMISSION, { targetSessionId, canSpeak });
+    if (this.room) {
+      this.room.send(MSG_TYPES.SET_MIC_PERMISSION, { targetSessionId, canSpeak });
+    } else if (this.isOffline) {
+      useClassroomStore.getState().upsertPlayer(targetSessionId, { canSpeak });
+    }
   }
 
   sendMuteAll() {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.MUTE_ALL, {});
+    if (this.room) {
+      this.room.send(MSG_TYPES.MUTE_ALL, {});
+    } else if (this.isOffline) {
+      useClassroomStore.getState().showToast('Muted all participants', 'info');
+    }
   }
 
   sendChangeMode(mode: ClassroomMode) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.CHANGE_MODE, { mode });
+    if (this.room) {
+      this.room.send(MSG_TYPES.CHANGE_MODE, { mode });
+    } else if (this.isOffline) {
+      useClassroomStore.getState().setMode(mode);
+      useClassroomStore.getState().showToast(`Mode set to ${mode}`, 'info');
+    }
   }
 
   sendToggleChatLock() {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.TOGGLE_CHAT_LOCK, {});
+    if (this.room) {
+      this.room.send(MSG_TYPES.TOGGLE_CHAT_LOCK, {});
+    } else if (this.isOffline) {
+      const cur = useClassroomStore.getState().isChatLocked;
+      useClassroomStore.getState().setChatLocked(!cur);
+      useClassroomStore.getState().showToast(cur ? 'Chat unlocked' : 'Chat locked', 'info');
+    }
   }
 
   sendChat(text: string) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.CHAT, { text });
+    if (this.room) {
+      this.room.send(MSG_TYPES.CHAT, { text });
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.addMessage({
+        id: `msg_${Date.now()}`,
+        senderId: store.mySessionId,
+        senderName: store.myDisplayName,
+        senderRole: store.myRole,
+        text,
+        timestamp: Date.now(),
+        isAnnouncement: false
+      });
+    }
   }
 
   sendAnnouncement(text: string) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.ANNOUNCEMENT, { text });
+    if (this.room) {
+      this.room.send(MSG_TYPES.ANNOUNCEMENT, { text });
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.addMessage({
+        id: `ann_${Date.now()}`,
+        senderId: store.mySessionId,
+        senderName: store.myDisplayName,
+        senderRole: store.myRole,
+        text,
+        timestamp: Date.now(),
+        isAnnouncement: true
+      });
+      store.showToast(`📢 ANNOUNCEMENT: ${text}`, 'info');
+    }
   }
 
   sendReaction(emoji: string) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.REACTION, { emoji });
+    if (this.room) {
+      this.room.send(MSG_TYPES.REACTION, { emoji });
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.triggerReaction(emoji, store.mySessionId);
+    }
   }
 
   sendChangeBoardSlide(slide: number) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.CHANGE_BOARD_SLIDE, { slide });
+    if (this.room) {
+      this.room.send(MSG_TYPES.CHANGE_BOARD_SLIDE, { slide });
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.setBoardState(store.boardTopic, slide);
+    }
   }
 
   sendChangeBoardTopic(topic: string) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.CHANGE_BOARD_TOPIC, { topic });
+    if (this.room) {
+      this.room.send(MSG_TYPES.CHANGE_BOARD_TOPIC, { topic });
+    } else if (this.isOffline) {
+      useClassroomStore.getState().setBoardState(topic, 0);
+    }
   }
 
   sendStartScreenShare(presenterName?: string) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.START_SCREENSHARE, { presenterName });
+    if (this.room) {
+      this.room.send(MSG_TYPES.START_SCREENSHARE, { presenterName });
+    } else if (this.isOffline) {
+      const store = useClassroomStore.getState();
+      store.setScreenSharingState(true, store.mySessionId, presenterName || store.myDisplayName);
+      store.showToast(`📺 Started sharing screen on the blackboard!`, 'info');
+    }
   }
 
   sendStopScreenShare() {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.STOP_SCREENSHARE);
+    if (this.room) {
+      this.room.send(MSG_TYPES.STOP_SCREENSHARE);
+    } else if (this.isOffline) {
+      useClassroomStore.getState().setScreenSharingState(false, '', '');
+      useClassroomStore.getState().showToast('Screen sharing stopped. Blackboard restored.', 'info');
+    }
   }
 
   sendTeacherUpdateInteractions(data: TeacherInteractionsUpdateData) {
-    if (!this.room) return;
-    this.room.send(MSG_TYPES.TEACHER_UPDATE_INTERACTIONS, data);
+    if (this.room) {
+      this.room.send(MSG_TYPES.TEACHER_UPDATE_INTERACTIONS, data);
+    } else if (this.isOffline) {
+      useClassroomStore.getState().setFunInteractionsConfig(data);
+    }
   }
 
   disconnect() {
+    this.isOffline = false;
     clearPlayerTransforms();
     if (this.room) {
       this.room.leave();

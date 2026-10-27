@@ -14,6 +14,7 @@ import {
   Radio
 } from 'lucide-react';
 import { UserRole } from '@classverse/shared';
+import { getServerHttpUrl } from '@/lib/serverConfig';
 
 const AVATAR_COLORS = [
   { name: 'Emerald', value: '#10B981' },
@@ -67,7 +68,7 @@ export default function LobbyPage() {
 
     if (role === 'student') {
       try {
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+        const serverUrl = getServerHttpUrl();
         const res = await fetch(`${serverUrl}/api/profiles/${uid}/validate-entry?role=student`);
         if (res.ok) {
           const data = await res.json();
@@ -99,7 +100,7 @@ export default function LobbyPage() {
 
     if (testRole === 'student') {
       try {
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+        const serverUrl = getServerHttpUrl();
         const res = await fetch(`${serverUrl}/api/profiles/${uid}/validate-entry?role=student`);
         if (res.ok) {
           const data = await res.json();

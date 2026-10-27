@@ -73,14 +73,35 @@ class InteractionsService {
       };
     }
 
-    colyseusService.getRoom()?.send(MSG_TYPES.PROJECTILE_LAUNCH, {
-      type: 'paper_ball',
-      startPos,
-      velocity,
-      targetSessionId,
-      targetPos,
-      power: 1.0
-    });
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.PROJECTILE_LAUNCH, {
+        type: 'paper_ball',
+        startPos,
+        velocity,
+        targetSessionId,
+        targetPos,
+        power: 1.0
+      });
+    } else {
+      store.addProjectile({
+        id: `ball_offline_${Date.now()}`,
+        type: 'paper_ball',
+        ownerSessionId: store.mySessionId,
+        ownerName: store.myDisplayName || 'Student',
+        startPos,
+        velocity,
+        targetSessionId,
+        targetPos,
+        timestamp: Date.now()
+      });
+      if (targetSessionId) {
+        setTimeout(() => {
+          soundEffects.playPaperHit();
+          store.showToast('💥 Paper ball hit target!', 'info');
+        }, 900);
+      }
+    }
 
     this.setCooldown('paper_ball', 8000);
     soundEffects.playPaperWhoosh();
@@ -119,12 +140,26 @@ class InteractionsService {
       z: Math.cos(rot) * speed
     };
 
-    colyseusService.getRoom()?.send(MSG_TYPES.PROJECTILE_LAUNCH, {
-      type: 'paper_airplane',
-      startPos,
-      velocity,
-      power
-    });
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.PROJECTILE_LAUNCH, {
+        type: 'paper_airplane',
+        startPos,
+        velocity,
+        power
+      });
+    } else {
+      store.addProjectile({
+        id: `airplane_offline_${Date.now()}`,
+        type: 'paper_airplane',
+        ownerSessionId: store.mySessionId,
+        ownerName: store.myDisplayName || 'Student',
+        startPos,
+        velocity,
+        power,
+        timestamp: Date.now()
+      });
+    }
 
     this.setCooldown('paper_airplane', 6000);
     soundEffects.playAirplaneGlide();
@@ -140,10 +175,20 @@ class InteractionsService {
       return false;
     }
 
-    colyseusService.getRoom()?.send(MSG_TYPES.INTERACTION_REQUEST, {
-      type: 'high_five',
-      targetSessionId
-    });
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.INTERACTION_REQUEST, {
+        type: 'high_five',
+        targetSessionId
+      });
+    } else {
+      soundEffects.playHighFiveSnap();
+      const myPlayer = store.players[store.mySessionId];
+      if (myPlayer) {
+        store.addSparkle({ x: myPlayer.x + 0.3, y: 1.2, z: myPlayer.z - 0.3 });
+      }
+      store.showToast('🙌 High five with classmate!', 'success');
+    }
 
     this.setCooldown('high_five', 4000);
     soundEffects.playClick();
@@ -164,11 +209,25 @@ class InteractionsService {
       return false;
     }
 
-    colyseusService.getRoom()?.send(MSG_TYPES.INTERACTION_REQUEST, {
-      type: 'dance_battle',
-      targetSessionId,
-      danceStyle
-    });
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.INTERACTION_REQUEST, {
+        type: 'dance_battle',
+        targetSessionId,
+        danceStyle
+      });
+    } else {
+      const style = danceStyle || 'cute_side_step';
+      store.upsertPlayer(store.mySessionId, { activeDance: style });
+      store.upsertPlayer('sess_sakura', { activeDance: 'anime_victory' });
+      soundEffects.playDanceBeat();
+      store.showToast('🎵 Dance Battle with Sakura Chibi!', 'info');
+      setTimeout(() => {
+        store.upsertPlayer(store.mySessionId, { activeDance: undefined });
+        store.upsertPlayer('sess_sakura', { activeDance: undefined });
+        store.showToast('🎉 Dance Battle Complete! Amazing moves!', 'success');
+      }, 10000);
+    }
 
     this.setCooldown('dance_battle', 12000);
     soundEffects.playClick();
@@ -189,10 +248,16 @@ class InteractionsService {
       return false;
     }
 
-    colyseusService.getRoom()?.send(MSG_TYPES.INTERACTION_REQUEST, {
-      type: 'follow',
-      targetSessionId
-    });
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.INTERACTION_REQUEST, {
+        type: 'follow',
+        targetSessionId
+      });
+    } else {
+      store.setFollowingSessionId(targetSessionId || 'sess_sakura');
+      store.showToast('Now following classmate! (Move WASD to stop)', 'info');
+    }
 
     this.setCooldown('follow', 3000);
     soundEffects.playClick();
@@ -201,16 +266,22 @@ class InteractionsService {
 
   // 6. Respond to Social Interaction Request (Accept/Decline)
   respondToInvite(interactionId: string, accept: boolean) {
-    colyseusService.getRoom()?.send(MSG_TYPES.INTERACTION_RESPOND, {
-      interactionId,
-      accept
-    });
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.INTERACTION_RESPOND, {
+        interactionId,
+        accept
+      });
+    }
     useClassroomStore.getState().setPendingInvite(null);
   }
 
   // 7. Cancel Follow
   cancelFollow() {
-    colyseusService.getRoom()?.send(MSG_TYPES.INTERACTION_CANCEL, {});
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.INTERACTION_CANCEL, {});
+    }
     useClassroomStore.getState().setFollowingSessionId(null);
     useClassroomStore.getState().showToast('Stopped following', 'info');
   }
@@ -229,10 +300,18 @@ class InteractionsService {
       return false;
     }
 
-    colyseusService.getRoom()?.send(MSG_TYPES.INTERACTION_TRIGGER, {
-      action: 'power_up',
-      data: { color }
-    });
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.INTERACTION_TRIGGER, {
+        action: 'power_up',
+        data: { color }
+      });
+    } else {
+      store.upsertPlayer(store.mySessionId, { activeAuraColor: color });
+      setTimeout(() => {
+        store.upsertPlayer(store.mySessionId, { activeAuraColor: undefined });
+      }, 5000);
+    }
 
     this.setCooldown('power_up', 6000);
     soundEffects.playPowerUpCharging(color);
@@ -245,10 +324,15 @@ class InteractionsService {
     const remaining = this.getCooldownRemaining('emoji');
     if (remaining > 0) return false;
 
-    colyseusService.getRoom()?.send(MSG_TYPES.INTERACTION_TRIGGER, {
-      action: 'emoji',
-      data: { emojiId, emojiChar }
-    });
+    const room = colyseusService.getRoom();
+    if (room) {
+      room.send(MSG_TYPES.INTERACTION_TRIGGER, {
+        action: 'emoji',
+        data: { emojiId, emojiChar }
+      });
+    } else {
+      store.triggerReaction(emojiChar, store.mySessionId);
+    }
 
     this.setCooldown('emoji', 1200);
     soundEffects.playEmojiPop();

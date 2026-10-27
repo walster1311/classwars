@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, Play, Settings, Server, ExternalLink, ArrowLeft } from 'lucide-react';
 import { UserRole } from '@classverse/shared';
 import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
 import { livekitService } from '@/lib/livekit';
+import { getServerHttpUrl, getServerWsUrl, getCustomServerUrl, setCustomServerUrl } from '@/lib/serverConfig';
 import { TopBar } from '@/components/ui/TopBar';
 import { LeftSidebar } from '@/components/ui/LeftSidebar';
 import { RightSidebar } from '@/components/ui/RightSidebar';
@@ -38,6 +39,8 @@ export default function ClassroomPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [customServerInput, setCustomServerInput] = useState('');
+  const [showServerConfig, setShowServerConfig] = useState(false);
 
   const classroomId = (params?.id as string) || 'bio-101';
   const role = (searchParams.get('role') as UserRole) || 'student';
@@ -48,6 +51,43 @@ export default function ClassroomPage() {
   const userId = searchParams.get('uid') || defaultId || `usr_${Math.random().toString(36).substring(2, 9)}`;
 
   const isConnected = useClassroomStore((s) => s.isConnected);
+
+  useEffect(() => {
+    setCustomServerInput(getCustomServerUrl());
+  }, []);
+
+  const enterSandboxMode = () => {
+    let characterType = (searchParams.get('char') as any) || undefined;
+    let hairstyleId = searchParams.get('hair') || undefined;
+    let uniformId: any = undefined;
+
+    // Load local stored character if present
+    if (typeof window !== 'undefined' && (!characterType || !hairstyleId)) {
+      try {
+        const stored = localStorage.getItem(`classverse_char_${userId}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          characterType = characterType || parsed.characterType;
+          hairstyleId = hairstyleId || parsed.hairstyleId;
+          uniformId = uniformId || parsed.uniformId;
+        }
+      } catch (e) {}
+    }
+
+    colyseusService.startOfflineSession({
+      classroomId,
+      displayName,
+      role,
+      avatarColor,
+      userId,
+      characterType,
+      hairstyleId,
+      uniformId
+    });
+
+    setIsLoading(false);
+    setConnectionError(null);
+  };
 
   const connect = async () => {
     setIsLoading(true);
@@ -60,7 +100,7 @@ export default function ClassroomPage() {
 
       // Server-Enforced Route Protection for Students:
       if (role === 'student') {
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+        const serverUrl = getServerHttpUrl();
         const checkRes = await fetch(`${serverUrl}/api/profiles/${userId}/validate-entry?role=student`).catch(() => null);
         if (checkRes && checkRes.ok) {
           const checkData = await checkRes.json();
@@ -95,7 +135,7 @@ export default function ClassroomPage() {
         uniformId
       });
 
-      // 2. Initialize LiveKit Voice Audio Engine
+      // 2. Initialize LiveKit Voice Audio Engine (graceful if voice unavailable)
       await livekitService.connect({
         roomName: classroomId,
         identity: room.sessionId,
@@ -141,29 +181,91 @@ export default function ClassroomPage() {
   }
 
   if (connectionError && !isConnected) {
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 select-none">
-        <div className="w-14 h-14 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 mb-4 shadow-lg shadow-rose-500/10">
-          <AlertCircle className="w-7 h-7" />
-        </div>
-        <h2 className="text-lg font-bold mb-1">Connection Unavailable</h2>
-        <p className="text-xs text-slate-400 max-w-md text-center mb-6">
-          {connectionError}. Make sure the CLASSVERSE multiplayer server is running on port 2567.
-        </p>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={connect}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition-all active:scale-95"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>Retry Connection</span>
-          </button>
-          <button
-            onClick={() => router.push('/')}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all"
-          >
-            Back to Lobby
-          </button>
+      <div className="w-screen h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 select-none relative overflow-y-auto">
+        <div className="w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl flex flex-col items-center text-center">
+          <div className="w-16 h-16 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-5 shadow-lg shadow-rose-500/10">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+
+          <h2 className="text-xl font-bold tracking-tight mb-2 text-white">Connection Unavailable</h2>
+          
+          <p className="text-xs text-slate-300 max-w-md mb-3 leading-relaxed">
+            {connectionError}
+          </p>
+
+          <p className="text-[11px] text-slate-400 max-w-sm mb-6 leading-relaxed">
+            {isHttps
+              ? 'Multiplayer requires a deployed WebSocket backend (e.g. Railway or Render). You can enter Sandbox Mode immediately to explore the full 3D classroom, chibis, and all fun actions!'
+              : 'Make sure the CLASSVERSE multiplayer backend server is running on port 2567, or jump straight into Offline Sandbox Mode below.'}
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center mb-6">
+            <button
+              onClick={enterSandboxMode}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all active:scale-95"
+            >
+              <Play className="w-4 h-4 fill-white" />
+              <span>Enter Offline Sandbox Mode</span>
+            </button>
+
+            <button
+              onClick={connect}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all active:scale-95"
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span>Retry Connection</span>
+            </button>
+          </div>
+
+          <div className="w-full pt-4 border-t border-slate-800/80 flex flex-col items-center gap-3">
+            <button
+              onClick={() => setShowServerConfig(!showServerConfig)}
+              className="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>{showServerConfig ? 'Hide Server Configuration' : 'Custom Server Configuration'}</span>
+            </button>
+
+            {showServerConfig && (
+              <div className="w-full mt-2 p-4 rounded-2xl bg-slate-950/70 border border-slate-800 text-left">
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Custom Multiplayer Server Endpoint (URL)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={customServerInput}
+                    onChange={(e) => setCustomServerInput(e.target.value)}
+                    placeholder="e.g. https://classverse-backend.up.railway.app"
+                    className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  />
+                  <button
+                    onClick={() => {
+                      setCustomServerUrl(customServerInput);
+                      connect();
+                    }}
+                    className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all"
+                  >
+                    Save & Connect
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-2">
+                  Enter your hosted Colyseus server URL. Leave empty to use default environment configuration.
+                </p>
+              </div>
+            )}
+
+            <button
+              onClick={() => router.push('/')}
+              className="text-[11px] text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1 mt-1"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              <span>Return to Lobby</span>
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -22,6 +22,7 @@ import {
   APPROVED_HAIRSTYLES,
   ChibiCharacterConfig
 } from '@classverse/shared';
+import { getServerHttpUrl } from '@/lib/serverConfig';
 
 // Dynamically import Three.js 3D Preview Canvas to prevent SSR issues
 const ChibiPreviewCanvas = dynamic(
@@ -66,7 +67,7 @@ function CharacterSelectionContent() {
   // On mount, check if student already has a saved character
   useEffect(() => {
     let isMounted = true;
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+    const serverUrl = getServerHttpUrl();
 
     async function checkSavedCharacter() {
       try {
@@ -79,7 +80,15 @@ function CharacterSelectionContent() {
           }
         }
       } catch (err) {
-        console.warn('[Character Selection] Could not fetch saved character:', err);
+        console.warn('[Character Selection] Could not fetch saved character from backend, checking local storage:', err);
+        try {
+          const stored = localStorage.getItem(`classverse_char_${userId}`);
+          if (stored && isMounted) {
+            const data = JSON.parse(stored);
+            if (data.characterType) setCharacterType(data.characterType);
+            if (data.hairstyleId) setSelectedHairstyle(data.hairstyleId);
+          }
+        } catch (e) {}
       } finally {
         if (isMounted) setInitialLoading(false);
       }
@@ -113,7 +122,17 @@ function CharacterSelectionContent() {
     }
 
     setIsSaving(true);
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+    const serverUrl = getServerHttpUrl();
+
+    // Always persist to local cache first
+    try {
+      localStorage.setItem(`classverse_char_${userId}`, JSON.stringify({
+        characterType,
+        hairstyleId: selectedHairstyle,
+        displayName,
+        role: rawRole
+      }));
+    } catch (e) {}
 
     try {
       const response = await fetch(`${serverUrl}/api/profiles/${userId}/character`, {
@@ -125,15 +144,15 @@ function CharacterSelectionContent() {
           displayName,
           role: rawRole
         })
+      }).catch((err) => {
+        console.warn('[Character Selection] Remote backend unavailable, using local persistence:', err);
+        return null;
       });
 
-      if (!response.ok) {
+      if (response && !response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to save character configuration.');
+        console.warn('[Character Selection] Server save returned status:', response.status, errData);
       }
-
-      const savedData = await response.json();
-      console.log('[Character Selection] Saved character successfully:', savedData);
 
       // Trigger celebratory animation briefly
       setPreviewAnimation('celebrate');
@@ -152,8 +171,19 @@ function CharacterSelectionContent() {
       }, 700);
     } catch (err: any) {
       console.error('[Character Selection Error]', err);
-      setErrorMessage(err.message || 'Unable to save character. Please try again.');
-      setIsSaving(false);
+      // Even if network failed, proceed since character was saved locally
+      setPreviewAnimation('celebrate');
+      setTimeout(() => {
+        const query = new URLSearchParams({
+          role: rawRole,
+          name: displayName,
+          color: avatarColor,
+          uid: userId,
+          char: characterType,
+          hair: selectedHairstyle
+        });
+        router.push(`/classroom/${classroomId}?${query.toString()}`);
+      }, 700);
     }
   };
 

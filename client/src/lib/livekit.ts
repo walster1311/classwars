@@ -1,5 +1,6 @@
 import { Room, RoomEvent, Track, RemoteParticipant, RemoteTrackPublication } from 'livekit-client';
 import { useClassroomStore } from './store';
+import { getServerHttpUrl } from './serverConfig';
 
 class LiveKitService {
   private room: Room | null = null;
@@ -17,7 +18,7 @@ class LiveKitService {
     this.isConnecting = true;
     this.currentRoomName = params.roomName;
 
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:2567';
+    const serverUrl = getServerHttpUrl();
 
     try {
       console.log(`[LiveKit] Requesting voice token for ${params.identity} (${params.role})`);

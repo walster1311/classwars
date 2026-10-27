@@ -3,6 +3,7 @@
 import React from 'react';
 import { Users, Radio, Settings, ShieldCheck } from 'lucide-react';
 import { useClassroomStore } from '@/lib/store';
+import { colyseusService } from '@/lib/colyseus';
 
 export function TopBar() {
   const classroomTitle = useClassroomStore((s) => s.classroomTitle);
@@ -40,11 +41,18 @@ export function TopBar() {
 
       {/* Middle: Live & Mode Indicators */}
       <div className="flex items-center gap-3">
-        {/* Live Pill */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs font-semibold">
-          <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-          <span>LIVE</span>
-        </div>
+        {/* Live or Sandbox Pill */}
+        {colyseusService.isOfflineActive() ? (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-purple-400" />
+            <span>SANDBOX</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span>LIVE</span>
+          </div>
+        )}
 
         {/* Audio Mode Pill */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-medium">
