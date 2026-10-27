@@ -1,5 +1,7 @@
 # CLASSVERSE — Real-Time Multiplayer 3D Virtual Classroom
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/walster1311/classwars)
+
 CLASSVERSE is a production-ready, browser-based multiplayer 3D virtual classroom. Built with Next.js, React Three Fiber, Colyseus authoritative WebSocket networking, LiveKit WebRTC voice streaming, and Supabase.
 
 ---
