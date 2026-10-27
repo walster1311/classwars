@@ -4,9 +4,11 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
+import { EMOJI_DEFINITIONS } from '@classverse/shared';
 import { ClientPlayer, useClassroomStore } from '@/lib/store';
 import { getPlayerTransform } from '@/lib/transforms';
 import { ChibiModel } from '../character/ChibiModel';
+import { interactionsService } from '@/lib/interactions';
 
 interface AvatarProps {
   player: ClientPlayer;
@@ -351,10 +353,79 @@ export const Avatar = React.memo(function Avatar({ player, isLocal }: AvatarProp
         <ChibiModel
           gender={player.characterType || 'boy'}
           hairstyleId={player.hairstyleId || (player.characterType === 'girl' ? 'girl_twin_tails' : 'boy_spiky_anime')}
-          animation={isSitting ? 'sit' : (isWalking ? 'walk' : (isHandRaised ? 'raise_hand' : 'idle'))}
+          animation={isSitting ? 'sit' : (player.animation || (isWalking ? 'walk' : (isHandRaised ? 'raise_hand' : 'idle')))}
           sessionId={player.sessionId}
           scale={1.05}
         />
+      )}
+
+      {/* ========================================================
+          VISUAL EFFECTS: ANIME POWER-UP AURA
+         ======================================================== */}
+      {player.activeAuraColor && (
+        <group position={[0, 0, 0]}>
+          {/* Ground Shockwave Expanding Ring */}
+          <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.5, 0.75, 32]} />
+            <meshBasicMaterial
+              color={player.activeAuraColor === 'golden' ? '#f59e0b' : (player.activeAuraColor === 'blue' ? '#38bdf8' : '#a855f7')}
+              transparent
+              opacity={0.8}
+            />
+          </mesh>
+          {/* Glowing Energy Aura Column */}
+          <mesh position={[0, 0.65, 0]}>
+            <cylinderGeometry args={[0.42, 0.52, 1.3, 16, 1, true]} />
+            <meshBasicMaterial
+              color={player.activeAuraColor === 'golden' ? '#fbbf24' : (player.activeAuraColor === 'blue' ? '#60a5fa' : '#c084fc')}
+              transparent
+              opacity={0.35}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          {/* Inner Core Pulsing Ring */}
+          <mesh position={[0, 0.65, 0]}>
+            <cylinderGeometry args={[0.32, 0.38, 1.25, 16, 1, true]} />
+            <meshBasicMaterial
+              color="#ffffff"
+              transparent
+              opacity={0.25}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </group>
+      )}
+
+      {/* ========================================================
+          VISUAL EFFECTS: DANCE BATTLE DISCO RING & NOTES
+         ======================================================== */}
+      {(player.activeDance || player.animation.startsWith('dance_')) && (
+        <group position={[0, 0, 0]}>
+          <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.6, 0.85, 32]} />
+            <meshBasicMaterial color="#ec4899" transparent opacity={0.7} />
+          </mesh>
+          <Html position={[0, 2.05, 0]} center distanceFactor={14}>
+            <div className="flex items-center gap-1 text-pink-400 font-bold text-lg animate-bounce drop-shadow pointer-events-none select-none">
+              <span>🎵</span>
+              <span className="text-[10px] uppercase tracking-wider bg-pink-600/90 text-white font-bold px-2 py-0.5 rounded-full shadow-lg">
+                {(player.activeDance || player.animation.replace('dance_', '')).replace(/_/g, ' ')}
+              </span>
+              <span>🎶</span>
+            </div>
+          </Html>
+        </group>
+      )}
+
+      {/* ========================================================
+          VISUAL EFFECTS: ACTIVE EMOJI BILLBOARD
+         ======================================================== */}
+      {player.activeEmoji && (
+        <Html position={[0, 2.0, 0]} center distanceFactor={14}>
+          <div className="animate-bounce text-3xl filter drop-shadow-lg select-none pointer-events-none">
+            {EMOJI_DEFINITIONS.find((e) => e.id === player.activeEmoji)?.char || '✨'}
+          </div>
+        </Html>
       )}
     </group>
   );

@@ -13,7 +13,7 @@ export interface ChibiModelProps {
   gender: CharacterType;
   hairstyleId: string;
   hairColor?: string;
-  animation?: 'idle' | 'walk' | 'sit' | 'raise_hand' | 'wave' | 'celebrate';
+  animation?: string;
   isLocal?: boolean;
   scale?: number;
   sessionId?: string;
@@ -62,6 +62,13 @@ export const ChibiModel = React.memo(function ChibiModel({
     const isHandRaised = activeAnim === 'raise_hand';
     const isWaving = activeAnim === 'wave';
     const isCelebrating = activeAnim === 'celebrate';
+    const isThrowing = activeAnim === 'throw';
+    const isHit = activeAnim === 'hit_reaction';
+    const isHighFive = activeAnim === 'high_five';
+    const isPowerUp = activeAnim === 'power_up';
+    const isFolding = activeAnim === 'fold_paper';
+    const isDancing = activeAnim.startsWith('dance_');
+    const danceType = isDancing ? activeAnim.replace('dance_', '') : '';
 
     if (isSitting) {
       // 1. Torso at sitting height (snugly on seat cushion)
@@ -144,6 +151,114 @@ export const ChibiModel = React.memo(function ChibiModel({
         } else {
           rightArmRef.current.rotation.set(swing * 0.7, 0, -0.05);
         }
+      }
+    } else if (isPowerUp) {
+      // Anime Power-Up: Squat charge with vibration
+      const vibrate = Math.sin(t * 35) * 0.015;
+      if (bodyRef.current) {
+        bodyRef.current.position.set(0, 0.65 + vibrate, 0);
+        bodyRef.current.rotation.set(0.1, 0, 0);
+      }
+      if (headRef.current) {
+        headRef.current.rotation.set(-0.25, 0, vibrate * 2);
+      }
+      if (leftThighRef.current && rightThighRef.current) {
+        leftThighRef.current.position.set(-0.16, 0.38, 0);
+        rightThighRef.current.position.set(0.16, 0.38, 0);
+        leftThighRef.current.rotation.set(0.35, 0, -0.25);
+        rightThighRef.current.rotation.set(0.35, 0, 0.25);
+      }
+      if (leftShinRef.current && rightShinRef.current) {
+        leftShinRef.current.position.set(-0.18, 0.16, 0.08);
+        rightShinRef.current.position.set(0.18, 0.16, 0.08);
+        leftShinRef.current.rotation.set(-0.35, 0, 0);
+        rightShinRef.current.rotation.set(-0.35, 0, 0);
+      }
+      if (leftArmRef.current) leftArmRef.current.rotation.set(-0.9, 0, 0.55);
+      if (rightArmRef.current) rightArmRef.current.rotation.set(-0.9, 0, -0.55);
+    } else if (isHit) {
+      // Hit Reaction: Recoil with surprised cartoon flail
+      const recoil = Math.sin(t * 14);
+      if (bodyRef.current) {
+        bodyRef.current.position.set(0, 0.72 + Math.abs(recoil) * 0.08, -0.08);
+        bodyRef.current.rotation.set(-0.2, 0, recoil * 0.1);
+      }
+      if (headRef.current) {
+        headRef.current.rotation.set(-0.3, 0, -recoil * 0.2);
+      }
+      if (leftArmRef.current) leftArmRef.current.rotation.set(0.7, 0, 0.45);
+      if (rightArmRef.current) rightArmRef.current.rotation.set(0.7, 0, -0.45);
+    } else if (isThrowing) {
+      // Throw: Pitch forward
+      const pitch = Math.sin(t * 12);
+      if (bodyRef.current) {
+        bodyRef.current.position.set(0, 0.72, 0.04);
+        bodyRef.current.rotation.set(0.18, 0, 0);
+      }
+      if (leftArmRef.current) leftArmRef.current.rotation.set(-0.6, 0, 0.3);
+      if (rightArmRef.current) rightArmRef.current.rotation.set(Math.PI - 0.4 + pitch * 0.4, 0, -0.2);
+    } else if (isHighFive) {
+      // High Five: Arm raised forward to slap partner's hand
+      if (bodyRef.current) {
+        bodyRef.current.position.set(0, 0.72, 0.04);
+        bodyRef.current.rotation.set(0, 0, 0);
+      }
+      if (leftArmRef.current) leftArmRef.current.rotation.set(0.2, 0, 0.1);
+      if (rightArmRef.current) rightArmRef.current.rotation.set(Math.PI - 0.65, 0, -0.22);
+    } else if (isFolding) {
+      // Paper Folding: Hands together at chest level
+      if (bodyRef.current) {
+        bodyRef.current.position.set(0, 0.72, 0);
+        bodyRef.current.rotation.set(0.15, 0, 0);
+      }
+      if (headRef.current) {
+        headRef.current.rotation.set(0.35, 0, 0);
+      }
+      if (leftArmRef.current) leftArmRef.current.rotation.set(-1.1, 0.4, 0.45);
+      if (rightArmRef.current) rightArmRef.current.rotation.set(-1.1, -0.4, -0.45);
+    } else if (isDancing) {
+      // 5 Synchronized Dance Styles
+      if (danceType === 'cute_side_step') {
+        const sway = Math.sin(t * 6);
+        if (bodyRef.current) {
+          bodyRef.current.position.set(sway * 0.1, 0.72 + Math.abs(sway) * 0.04, 0);
+          bodyRef.current.rotation.set(0, 0, sway * 0.14);
+        }
+        if (headRef.current) headRef.current.rotation.set(0, 0, -sway * 0.12);
+        if (leftArmRef.current) leftArmRef.current.rotation.set(-0.3, 0, 0.35 + sway * 0.3);
+        if (rightArmRef.current) rightArmRef.current.rotation.set(-0.3, 0, -0.35 + sway * 0.3);
+      } else if (danceType === 'anime_victory') {
+        const bounce = Math.abs(Math.sin(t * 9)) * 0.08;
+        if (bodyRef.current) {
+          bodyRef.current.position.set(0, 0.72 + bounce, 0);
+        }
+        if (headRef.current) headRef.current.rotation.set(Math.sin(t * 9) * 0.15, 0, 0);
+        if (leftArmRef.current) leftArmRef.current.rotation.set(Math.PI - 0.3 + Math.sin(t * 9) * 0.25, 0, 0.35);
+        if (rightArmRef.current) rightArmRef.current.rotation.set(Math.PI - 0.3 - Math.sin(t * 9) * 0.25, 0, -0.35);
+      } else if (danceType === 'funny_robot') {
+        const step = Math.floor(t * 4) % 4;
+        if (bodyRef.current) {
+          bodyRef.current.position.set(0, 0.72, 0);
+          bodyRef.current.rotation.set(0, step % 2 === 0 ? 0.1 : -0.1, 0);
+        }
+        if (headRef.current) headRef.current.rotation.set(0, step % 2 === 0 ? 0.35 : -0.35, 0);
+        if (leftArmRef.current) leftArmRef.current.rotation.set(step % 2 === 0 ? -1.57 : 0, 0, step > 1 ? 1.57 : 0.2);
+        if (rightArmRef.current) rightArmRef.current.rotation.set(step % 2 === 1 ? -1.57 : 0, 0, step > 1 ? -0.2 : -1.57);
+      } else if (danceType === 'jump_and_spin') {
+        const hop = Math.abs(Math.sin(t * 5)) * 0.12;
+        if (bodyRef.current) {
+          bodyRef.current.position.set(0, 0.72 + hop, 0);
+          bodyRef.current.rotation.set(0, t * 5, 0);
+        }
+        if (leftArmRef.current) leftArmRef.current.rotation.set(0, 0, 1.2);
+        if (rightArmRef.current) rightArmRef.current.rotation.set(0, 0, -1.2);
+      } else {
+        // Silly freestyle
+        if (bodyRef.current) {
+          bodyRef.current.position.set(0, 0.72 + Math.sin(t * 8) * 0.03, 0);
+        }
+        if (leftArmRef.current) leftArmRef.current.rotation.set(Math.sin(t * 7) * 0.6, 0.2, 0.3 + Math.sin(t * 7) * 0.4);
+        if (rightArmRef.current) rightArmRef.current.rotation.set(Math.cos(t * 7) * 0.6, -0.2, -0.3 - Math.sin(t * 7) * 0.4);
       }
     } else {
       // Idle / Cheerful Stand: Gentle breathing sway

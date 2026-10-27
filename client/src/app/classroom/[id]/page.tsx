@@ -14,6 +14,8 @@ import { RightSidebar } from '@/components/ui/RightSidebar';
 import { BottomToolbar } from '@/components/ui/BottomToolbar';
 import { TeacherControlModal } from '@/components/ui/TeacherControlModal';
 import { ToastNotification } from '@/components/ui/ToastNotification';
+import { FunActionsMenu } from '@/components/ui/FunActionsMenu';
+import { InteractionInviteModal } from '@/components/ui/InteractionInviteModal';
 
 // Dynamically import Three.js Canvas to prevent SSR issues
 const ClassroomCanvas = dynamic(
@@ -190,6 +192,8 @@ export default function ClassroomPage() {
       <BottomToolbar />
 
       {/* Modals and Notifications */}
+      <FunActionsMenu />
+      <InteractionInviteModal />
       <TeacherControlModal />
       <ToastNotification />
     </div>

@@ -23,6 +23,11 @@ export class PlayerState extends Schema {
   @type('number') handRaiseTime: number = 0;
   @type('number') joinedAt: number = 0;
   @type('string') connectionStatus: string = 'connected';
+  @type('boolean') isInteractionDisabled: boolean = false;
+  @type('string') followingSessionId: string = '';
+  @type('string') activeAuraColor: string = '';
+  @type('string') activeDance: string = '';
+  @type('string') activeEmoji: string = '';
 }
 
 export class SeatState extends Schema {
@@ -57,6 +62,14 @@ export class ClassroomState extends Schema {
   @type('boolean') isScreenSharing: boolean = false;
   @type('string') screenSharePresenterId: string = '';
   @type('string') screenSharePresenterName: string = '';
+  @type('string') funActionsMode: string = 'break'; // 'lesson' | 'break' | 'free_play'
+  @type('boolean') allowPaperBall: boolean = true;
+  @type('boolean') allowHighFive: boolean = true;
+  @type('boolean') allowDanceBattle: boolean = true;
+  @type('boolean') allowEmoji: boolean = true;
+  @type('boolean') allowFollow: boolean = true;
+  @type('boolean') allowPowerUp: boolean = true;
+  @type('boolean') allowPaperAirplane: boolean = true;
   @type('number') sessionStartTime: number = Date.now();
   @type('boolean') isSessionActive: boolean = true;
 

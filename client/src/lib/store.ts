@@ -1,5 +1,15 @@
 import { create } from 'zustand';
-import { UserRole, ClassroomMode, SeatInfo, CLASSROOM_SEATS, CharacterType, UniformId } from '@classverse/shared';
+import {
+  UserRole,
+  ClassroomMode,
+  SeatInfo,
+  CLASSROOM_SEATS,
+  CharacterType,
+  UniformId,
+  ProjectileEventData,
+  SocialInteractionEventData,
+  FunInteractionMode
+} from '@classverse/shared';
 
 export interface ChatMessage {
   id: string;
@@ -32,6 +42,19 @@ export interface ClientPlayer {
   isMuted: boolean;
   handRaiseTime: number;
   isSpeaking?: boolean;
+  isInteractionDisabled?: boolean;
+  followingSessionId?: string;
+  activeAuraColor?: string;
+  activeDance?: string;
+  activeEmoji?: string;
+}
+
+export interface SparkleEffect {
+  id: string;
+  x: number;
+  y: number;
+  z: number;
+  createdAt: number;
 }
 
 interface ClassroomState {
@@ -74,6 +97,21 @@ interface ClassroomState {
   toast: { message: string; type: 'info' | 'error' | 'success' } | null;
   activeReaction: { emoji: string; sessionId: string; id: number } | null;
 
+  // Interactive Classroom Fun & Social System State
+  funActionsMode: FunInteractionMode;
+  allowPaperBall: boolean;
+  allowHighFive: boolean;
+  allowDanceBattle: boolean;
+  allowEmoji: boolean;
+  allowFollow: boolean;
+  allowPowerUp: boolean;
+  allowPaperAirplane: boolean;
+  pendingInvite: SocialInteractionEventData | null;
+  followingSessionId: string | null;
+  activeProjectiles: ProjectileEventData[];
+  sparkles: SparkleEffect[];
+  airplanePersonalBest: number;
+
   // Actions
   setClientInfo: (info: { sessionId?: string; role?: UserRole; name?: string; color?: string }) => void;
   setClassroomDetails: (details: { id: string; title: string; mode: ClassroomMode; isChatLocked: boolean }) => void;
@@ -102,6 +140,22 @@ interface ClassroomState {
   triggerCameraReset: () => void;
   showToast: (message: string, type?: 'info' | 'error' | 'success') => void;
   triggerReaction: (emoji: string, sessionId: string) => void;
+  setFunInteractionsConfig: (config: Partial<{
+    funActionsMode: FunInteractionMode;
+    allowPaperBall: boolean;
+    allowHighFive: boolean;
+    allowDanceBattle: boolean;
+    allowEmoji: boolean;
+    allowFollow: boolean;
+    allowPowerUp: boolean;
+    allowPaperAirplane: boolean;
+  }>) => void;
+  setPendingInvite: (invite: SocialInteractionEventData | null) => void;
+  setFollowingSessionId: (targetId: string | null) => void;
+  addProjectile: (proj: ProjectileEventData) => void;
+  removeProjectile: (id: string) => void;
+  addSparkle: (sparkle: { x: number; y: number; z: number }) => void;
+  setAirplanePersonalBest: (dist: number) => void;
 }
 
 // Initial seat map
@@ -145,6 +199,20 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
   cameraResetNonce: 0,
   toast: null,
   activeReaction: null,
+
+  funActionsMode: 'break',
+  allowPaperBall: true,
+  allowHighFive: true,
+  allowDanceBattle: true,
+  allowEmoji: true,
+  allowFollow: true,
+  allowPowerUp: true,
+  allowPaperAirplane: true,
+  pendingInvite: null,
+  followingSessionId: null,
+  activeProjectiles: [],
+  sparkles: [],
+  airplanePersonalBest: 0,
 
   setClientInfo: (info) => set((state) => ({
     mySessionId: info.sessionId !== undefined ? info.sessionId : state.mySessionId,
@@ -282,7 +350,40 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
     set({
       activeReaction: { emoji, sessionId, id: Date.now() }
     });
-  }
+  },
+
+  setFunInteractionsConfig: (config) => set((state) => ({
+    funActionsMode: config.funActionsMode !== undefined ? config.funActionsMode : state.funActionsMode,
+    allowPaperBall: config.allowPaperBall !== undefined ? config.allowPaperBall : state.allowPaperBall,
+    allowHighFive: config.allowHighFive !== undefined ? config.allowHighFive : state.allowHighFive,
+    allowDanceBattle: config.allowDanceBattle !== undefined ? config.allowDanceBattle : state.allowDanceBattle,
+    allowEmoji: config.allowEmoji !== undefined ? config.allowEmoji : state.allowEmoji,
+    allowFollow: config.allowFollow !== undefined ? config.allowFollow : state.allowFollow,
+    allowPowerUp: config.allowPowerUp !== undefined ? config.allowPowerUp : state.allowPowerUp,
+    allowPaperAirplane: config.allowPaperAirplane !== undefined ? config.allowPaperAirplane : state.allowPaperAirplane
+  })),
+
+  setPendingInvite: (invite) => set({ pendingInvite: invite }),
+  setFollowingSessionId: (targetId) => set({ followingSessionId: targetId }),
+
+  addProjectile: (proj) => set((state) => ({
+    activeProjectiles: [...state.activeProjectiles.filter(p => p.id !== proj.id), proj]
+  })),
+
+  removeProjectile: (id) => set((state) => ({
+    activeProjectiles: state.activeProjectiles.filter(p => p.id !== id)
+  })),
+
+  addSparkle: (sparkle) => set((state) => ({
+    sparkles: [
+      ...state.sparkles.filter(s => Date.now() - s.createdAt < 2000),
+      { ...sparkle, id: `sp_${Date.now()}_${Math.random()}`, createdAt: Date.now() }
+    ]
+  })),
+
+  setAirplanePersonalBest: (dist) => set((state) => ({
+    airplanePersonalBest: Math.max(state.airplanePersonalBest, dist)
+  }))
 }));
 
 if (typeof window !== 'undefined') {

@@ -1,7 +1,8 @@
 import { Client, Room } from 'colyseus.js';
-import { ClassroomState, MSG_TYPES, UserRole, ClassroomMode, CharacterType, UniformId } from '@classverse/shared';
+import { ClassroomState, MSG_TYPES, UserRole, ClassroomMode, CharacterType, UniformId, TeacherInteractionsUpdateData } from '@classverse/shared';
 import { useClassroomStore } from './store';
 import { setPlayerTransform, removePlayerTransform, clearPlayerTransforms } from './transforms';
+import { soundEffects } from './soundFx';
 
 class ColyseusService {
   private client: Client | null = null;
@@ -76,6 +77,16 @@ class ColyseusService {
         this.room.state.screenSharePresenterId || '',
         this.room.state.screenSharePresenterName || ''
       );
+      store.setFunInteractionsConfig({
+        funActionsMode: (this.room.state.funActionsMode as any) || 'break',
+        allowPaperBall: this.room.state.allowPaperBall ?? true,
+        allowHighFive: this.room.state.allowHighFive ?? true,
+        allowDanceBattle: this.room.state.allowDanceBattle ?? true,
+        allowEmoji: this.room.state.allowEmoji ?? true,
+        allowFollow: this.room.state.allowFollow ?? true,
+        allowPowerUp: this.room.state.allowPowerUp ?? true,
+        allowPaperAirplane: this.room.state.allowPaperAirplane ?? true
+      });
 
       this.setupRoomListeners(this.room);
 
@@ -298,6 +309,101 @@ class ColyseusService {
       }
     });
 
+    // ============================================================
+    // INTERACTIVE CLASSROOM FUN & SOCIAL SYSTEM LISTENERS
+    // ============================================================
+    room.onMessage('interaction_invite_received', (payload: any) => {
+      useClassroomStore.getState().setPendingInvite(payload);
+      soundEffects.playClick();
+    });
+
+    room.onMessage('interaction_request_pending', (payload: { targetName: string; type: string }) => {
+      useClassroomStore.getState().showToast(`Sent ${payload.type.replace('_', ' ')} request to ${payload.targetName}...`, 'info');
+    });
+
+    room.onMessage('interaction_declined', (payload: { targetName: string; type: string }) => {
+      useClassroomStore.getState().showToast(`${payload.targetName} is busy right now.`, 'info');
+    });
+
+    room.onMessage('interaction_expired', (payload: { targetName: string }) => {
+      useClassroomStore.getState().showToast(`Request to ${payload.targetName} timed out.`, 'info');
+    });
+
+    room.onMessage('high_five_executed', (payload: { sparklePos: { x: number; y: number; z: number } }) => {
+      soundEffects.playHighFiveSnap();
+      useClassroomStore.getState().addSparkle(payload.sparklePos);
+      useClassroomStore.getState().showToast('🙌 High Five!', 'success');
+    });
+
+    room.onMessage('dance_battle_started', (payload: { player1: any; player2: any; durationSeconds: number }) => {
+      soundEffects.playDanceBeat();
+      useClassroomStore.getState().showToast(`🎵 Dance Battle: ${payload.player1.displayName} vs ${payload.player2.displayName}!`, 'info');
+    });
+
+    room.onMessage('dance_battle_ended', () => {
+      useClassroomStore.getState().showToast('🎉 Dance Battle Complete! Amazing moves!', 'success');
+    });
+
+    room.onMessage('follow_started', (payload: { followerSessionId: string; followerName: string; targetSessionId: string; targetName: string }) => {
+      if (payload.followerSessionId === room.sessionId) {
+        useClassroomStore.getState().setFollowingSessionId(payload.targetSessionId);
+        useClassroomStore.getState().showToast(`Now following ${payload.targetName} (Move WASD to stop)`, 'info');
+      } else if (payload.targetSessionId === room.sessionId) {
+        useClassroomStore.getState().showToast(`${payload.followerName} is following you!`, 'info');
+      }
+    });
+
+    room.onMessage('follow_ended', (payload: { followerSessionId: string }) => {
+      if (payload.followerSessionId === room.sessionId) {
+        useClassroomStore.getState().setFollowingSessionId(null);
+      }
+    });
+
+    room.onMessage('follow_target_disconnected', () => {
+      useClassroomStore.getState().setFollowingSessionId(null);
+      useClassroomStore.getState().showToast('Friend left the classroom. Stopped following.', 'info');
+    });
+
+    room.onMessage('projectile_spawned', (payload: any) => {
+      useClassroomStore.getState().addProjectile(payload);
+    });
+
+    room.onMessage('player_hit_reaction', (payload: { targetSessionId: string; targetName: string }) => {
+      soundEffects.playPaperHit();
+      if (payload.targetSessionId === room.sessionId) {
+        useClassroomStore.getState().showToast('💥 Bonk! You were hit by a paper ball!', 'info');
+      }
+    });
+
+    room.onMessage('player_power_up', (payload: { sessionId: string; displayName: string; color: string }) => {
+      if (payload.sessionId !== room.sessionId) {
+        soundEffects.playPowerUpCharging(payload.color as any);
+      }
+    });
+
+    room.onMessage('emoji_reacted', (payload: { sessionId: string; emojiId: string; emojiChar: string }) => {
+      soundEffects.playEmojiPop();
+      useClassroomStore.getState().triggerReaction(payload.emojiChar, payload.sessionId);
+    });
+
+    room.onMessage('teacher_interactions_updated', (payload: any) => {
+      useClassroomStore.getState().setFunInteractionsConfig(payload);
+      useClassroomStore.getState().showToast(`Classroom mode: ${payload.funActionsMode.toUpperCase()}`, 'info');
+    });
+
+    room.onMessage('interactions_stopped_all', () => {
+      useClassroomStore.getState().setFollowingSessionId(null);
+      useClassroomStore.getState().showToast('Teacher stopped all active playful interactions.', 'info');
+    });
+
+    room.onMessage('interactions_muted_by_teacher', () => {
+      useClassroomStore.getState().showToast('Your fun actions were temporarily restricted by the teacher.', 'error');
+    });
+
+    room.onMessage('interactions_restored_by_teacher', () => {
+      useClassroomStore.getState().showToast('Your fun actions permissions were restored by the teacher!', 'success');
+    });
+
     room.onError((code, message) => {
       console.error('[Colyseus Room Error]', code, message);
       useClassroomStore.getState().showToast(`Room error: ${message}`, 'error');
@@ -400,6 +506,11 @@ class ColyseusService {
   sendStopScreenShare() {
     if (!this.room) return;
     this.room.send(MSG_TYPES.STOP_SCREENSHARE);
+  }
+
+  sendTeacherUpdateInteractions(data: TeacherInteractionsUpdateData) {
+    if (!this.room) return;
+    this.room.send(MSG_TYPES.TEACHER_UPDATE_INTERACTIONS, data);
   }
 
   disconnect() {

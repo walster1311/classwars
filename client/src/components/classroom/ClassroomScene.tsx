@@ -16,6 +16,7 @@ import {
   DetailedBookshelf,
   BulletinBoardMesh
 } from './props/ClassroomFurniture';
+import { ProjectilesManager } from './props/ProjectilesManager';
 
 // Isolated PlayerAvatars component to prevent re-rendering the entire 100-seat classroom scene on movement
 function PlayerAvatars() {
@@ -376,6 +377,9 @@ export function ClassroomScene() {
 
       {/* ================= SYNCHRONIZED PLAYER AVATARS ================= */}
       <PlayerAvatars />
+
+      {/* ================= DYNAMIC 3D PROJECTILES & SOCIAL PARTICLES ================= */}
+      <ProjectilesManager />
     </group>
   );
 }

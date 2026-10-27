@@ -9,6 +9,7 @@ import { CameraController } from './CameraController';
 import { useClassroomStore } from '@/lib/store';
 import { colyseusService } from '@/lib/colyseus';
 import { getPlayerTransform, setPlayerTransform } from '@/lib/transforms';
+import { interactionsService } from '@/lib/interactions';
 
 export function ClassroomCanvas() {
   const mySessionId = useClassroomStore((s) => s.mySessionId);
@@ -80,7 +81,14 @@ export function ClassroomCanvas() {
         let newZ = curZ;
         let newRotY = curRotY;
 
+        const followingSessionId = useClassroomStore.getState().followingSessionId;
+
         if (dx !== 0 || dz !== 0) {
+          // Manual movement immediately cancels following
+          if (followingSessionId) {
+            interactionsService.cancelFollow();
+          }
+
           // Normalize diagonal movement
           if (dx !== 0 && dz !== 0) {
             dx *= 0.7071;
@@ -91,6 +99,30 @@ export function ClassroomCanvas() {
           newZ = Math.max(CLASSROOM_BOUNDS.minZ, Math.min(CLASSROOM_BOUNDS.maxZ, curZ + dz));
           newRotY = Math.atan2(dx, dz);
           isMoving = true;
+        } else if (followingSessionId) {
+          // Follow Friend Autopilot (maintains 1.2m - 1.5m comfortable distance)
+          const targetPlayer = useClassroomStore.getState().players[followingSessionId];
+          const targetTrans = getPlayerTransform(followingSessionId);
+          const tx = targetTrans ? targetTrans.x : (targetPlayer ? targetPlayer.x : curX);
+          const tz = targetTrans ? targetTrans.z : (targetPlayer ? targetPlayer.z : curZ);
+
+          const toTargetX = tx - curX;
+          const toTargetZ = tz - curZ;
+          const distToTarget = Math.hypot(toTargetX, toTargetZ);
+
+          if (distToTarget > 1.35) {
+            const stepSpeed = Math.min(speed, (distToTarget - 1.2) * 0.1);
+            dx = (toTargetX / distToTarget) * stepSpeed;
+            dz = (toTargetZ / distToTarget) * stepSpeed;
+
+            newX = Math.max(CLASSROOM_BOUNDS.minX, Math.min(CLASSROOM_BOUNDS.maxX, curX + dx));
+            newZ = Math.max(CLASSROOM_BOUNDS.minZ, Math.min(CLASSROOM_BOUNDS.maxZ, curZ + dz));
+            newRotY = Math.atan2(toTargetX, toTargetZ);
+            isMoving = true;
+          } else {
+            // Reached target, face them
+            newRotY = Math.atan2(toTargetX, toTargetZ);
+          }
         }
 
         // Send network updates if moved or animation state changed

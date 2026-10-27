@@ -196,8 +196,108 @@ export const MSG_TYPES = {
   CHANGE_BOARD_SLIDE: 'change_board_slide',
   CHANGE_BOARD_TOPIC: 'change_board_topic',
   START_SCREENSHARE: 'start_screenshare',
-  STOP_SCREENSHARE: 'stop_screenshare'
+  STOP_SCREENSHARE: 'stop_screenshare',
+
+  // Interactive Classroom Fun & Social System Messages
+  INTERACTION_TRIGGER: 'interaction:trigger',
+  INTERACTION_REQUEST: 'interaction:request',
+  INTERACTION_RESPOND: 'interaction:respond',
+  INTERACTION_CANCEL: 'interaction:cancel',
+  PROJECTILE_LAUNCH: 'projectile:launch',
+  TEACHER_UPDATE_INTERACTIONS: 'teacher:update_interactions'
 } as const;
+
+export type FunActionType =
+  | 'paper_ball'
+  | 'high_five'
+  | 'dance_battle'
+  | 'emoji'
+  | 'follow'
+  | 'power_up'
+  | 'paper_airplane';
+
+export type FunInteractionMode = 'lesson' | 'break' | 'free_play';
+
+export type PowerUpColor = 'golden' | 'blue' | 'purple';
+
+export type DanceStyle =
+  | 'cute_side_step'
+  | 'anime_victory'
+  | 'funny_robot'
+  | 'jump_and_spin'
+  | 'silly_freestyle';
+
+export type EmojiReactionId =
+  | 'love'
+  | 'laugh'
+  | 'surprised'
+  | 'crying'
+  | 'cool'
+  | 'angry'
+  | 'sleepy'
+  | 'confused'
+  | 'sweat'
+  | 'excited';
+
+export interface EmojiDefinition {
+  id: EmojiReactionId;
+  label: string;
+  char: string;
+  facialAnim: string;
+}
+
+export const EMOJI_DEFINITIONS: EmojiDefinition[] = [
+  { id: 'love', label: 'Love', char: '❤️', facialAnim: 'heart_eyes' },
+  { id: 'laugh', label: 'Laugh', char: '😂', facialAnim: 'laughing' },
+  { id: 'surprised', label: 'Surprised', char: '😮', facialAnim: 'gasp' },
+  { id: 'crying', label: 'Crying', char: '😭', facialAnim: 'tear_streams' },
+  { id: 'cool', label: 'Cool', char: '😎', facialAnim: 'sunglasses' },
+  { id: 'angry', label: 'Angry', char: '😡', facialAnim: 'anger_mark' },
+  { id: 'sleepy', label: 'Sleepy', char: '😴', facialAnim: 'zzz' },
+  { id: 'confused', label: 'Confused', char: '❓', facialAnim: 'question' },
+  { id: 'sweat', label: 'Sweat Drop', char: '💦', facialAnim: 'sweat_drop' },
+  { id: 'excited', label: 'Excited', char: '✨', facialAnim: 'sparkle_eyes' }
+];
+
+export interface ProjectileEventData {
+  id: string;
+  type: 'paper_ball' | 'paper_airplane';
+  ownerSessionId: string;
+  ownerName: string;
+  startPos: { x: number; y: number; z: number };
+  velocity: { x: number; y: number; z: number };
+  targetSessionId?: string;
+  targetPos?: { x: number; y: number; z: number };
+  power?: number;
+  timestamp: number;
+}
+
+export interface SocialInteractionEventData {
+  id: string;
+  type: 'high_five' | 'dance_battle' | 'follow';
+  initiatorSessionId: string;
+  initiatorName: string;
+  targetSessionId: string;
+  targetName: string;
+  status: 'requested' | 'accepted' | 'declined' | 'active' | 'completed' | 'cancelled';
+  danceStyle?: DanceStyle;
+  timestamp: number;
+  durationMs?: number;
+}
+
+export interface TeacherInteractionsUpdateData {
+  funActionsMode?: FunInteractionMode;
+  allowPaperBall?: boolean;
+  allowHighFive?: boolean;
+  allowDanceBattle?: boolean;
+  allowEmoji?: boolean;
+  allowFollow?: boolean;
+  allowPowerUp?: boolean;
+  allowPaperAirplane?: boolean;
+  stopAllActive?: boolean;
+  targetStudentSessionId?: string;
+  studentDisabled?: boolean;
+}
 
 export * from './schema';
 
