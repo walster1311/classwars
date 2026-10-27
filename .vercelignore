@@ -1,0 +1,8 @@
+node_modules
+.next
+client/.next
+test-results
+playwright-report
+blob-report
+.git
+.env.local
