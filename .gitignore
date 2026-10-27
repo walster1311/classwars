@@ -1,6 +1,6 @@
 node_modules/
 .next/
-server/dist/
+!server/dist/
 !packages/shared/dist/
 build/
 .env
