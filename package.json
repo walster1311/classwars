@@ -9,9 +9,12 @@
   ],
   "scripts": {
     "dev:server": "npm --workspace=server run dev",
-    "dev:client": "npm --workspace=client run dev",
-    "build:shared": "npm --workspace=packages/shared run build",
-    "build": "npm run build:shared && npm --workspace=server run build && npm --workspace=client run build",
+    "dev:client": "npm --workspace=@classverse/client run dev",
+    "build:shared": "npm --workspace=@classverse/shared run build",
+    "build:server": "npm --workspace=server run build",
+    "build:client": "npm --workspace=@classverse/client run build",
+    "build": "npm run build:shared && npm run build:client",
+    "build:all": "npm run build:shared && npm run build:server && npm run build:client",
     "test": "npx playwright test"
   },
   "devDependencies": {
